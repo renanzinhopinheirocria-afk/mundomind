@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUNDINHO - SITESMIND TECH BLUE CINEMATIC</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000; overflow:hidden; font-family:'JetBrains Mono',monospace; cursor:crosshair}
+#canvas{position:fixed; inset:0}
+.hud{position:absolute; inset:0; pointer-events:none; z-index:10; transition:opacity 0.6s}
+.hud.dim{opacity:0.15}
+.corner{position:absolute; width:42px; height:42px; border:2px solid #00aaff; box-shadow:0 0 15px #00aaff88}
+.c1{top:20px; left:20px; border-right:0; border-bottom:0} 
+.c2{top:20px; right:20px; border-left:0; border-bottom:0}
+.c3{bottom:20px; left:20px; border-right:0; border-top:0} 
+.c4{bottom:20px; right:20px; border-left:0; border-top:0}
+.topLeft{position:absolute; top:28px; left:75px; color:#00aaff; font-size:0.6rem; line-height:1.4; letter-spacing:0.1em; text-shadow:0 0 10px #00aaff88}
+.topLeft b{color:#fff; font-size:1.25rem; font-family:Inter,sans-serif; font-weight:900; display:block; line-height:0.9; text-transform:uppercase}
+.topLeft b span{color:#00aaff; text-shadow:0 0 20px #00aaff}
+.dataRight{position:absolute; top:28px; right:75px; text-align:right; color:#00aaff; font-size:0.58rem; line-height:1.7; text-shadow:0 0 8px #00aaff88}
+.dataRight i{color:#fff; font-style:normal; background:#00aaff33; padding:1px 6px; border-radius:3px; border:1px solid #00aaff66}
+.bottomBar{position:absolute; bottom:22px; left:50%; transform:translateX(-50%); background:rgba(0,20,50,0.85); border:1px solid #00aaff88; border-radius:30px; padding:9px 20px; color:#7dd3fc; font-size:0.62rem; backdrop-filter:blur(12px); display:flex; gap:18px; align-items:center; white-space:nowrap; box-shadow:0 0 30px #00aaff44}
+.dot{width:7px; height:7px; background:#00aaff; border-radius:50%; box-shadow:0 0 15px #00aaff; animation:blink 0.8s infinite}
+@keyframes blink{50%{opacity:0.2}}
+
+/* BOTÃO CHAMATIVO MIND DIMENSIONS - APENAS ESSE */
+.btnDimensions{position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); margin-top:165px; z-index:15; pointer-events:auto; padding:14px 28px; border-radius:100px; font-weight:900; font-size:0.82rem; cursor:pointer; letter-spacing:0.8px; border:1px solid #00aaff; background:linear-gradient(90deg,#00aaff,#7c5cff); color:#fff; box-shadow:0 0 40px #00aaff99, 0 0 80px #7c5cff55, inset 0 1px 0 rgba(255,255,255,0.3); font-family:'JetBrains Mono',monospace; text-transform:uppercase; transition:0.3s cubic-bezier(.16,1,.3,1); animation:btnFloat 3s ease-in-out infinite, btnGlow 2s ease-in-out infinite}
+.btnDimensions:hover{transform:translate(-50%, -50%) translateY(-4px) scale(1.07); box-shadow:0 0 60px #00aaffff, 0 0 100px #7c5cff99, inset 0 1px 0 rgba(255,255,255,0.4)}
+@keyframes btnFloat{0%,100%{margin-top:165px} 50%{margin-top:160px}}
+@keyframes btnGlow{0%,100%{box-shadow:0 0 40px #00aaff99, 0 0 80px #7c5cff55} 50%{box-shadow:0 0 60px #00aaffcc, 0 0 100px #7c5cff88}}
+@media(max-width:700px){.btnDimensions{font-size:0.70rem; padding:12px 20px; margin-top:130px} @keyframes btnFloat{0%,100%{margin-top:130px} 50%{margin-top:125px}}}
+
+#tooltip{position:fixed; z-index:20; background:rgba(0,15,40,0.96); border:1px solid #00aaff; border-left:4px solid #00aaff; padding:11px 15px; color:#fff; font-weight:700; font-size:0.8rem; pointer-events:none; display:none; box-shadow:0 0 35px #00aaff88; border-radius:6px}
+#holoOverlay{position:fixed; inset:0; z-index:90; background:radial-gradient(circle at center, rgba(0,170,255,0.14), transparent 70%); display:none; pointer-events:none}
+#holoOverlay.on{display:block; animation:holoFade 0.8s ease}
+@keyframes holoFade{0%{opacity:0} 100%{opacity:1}}
+#holoCard{position:fixed; inset:0; z-index:100; display:none; place-items:center; background:rgba(0,0,0,0.78); backdrop-filter:blur(16px); perspective:1200px}
+#holoCard.on{display:grid}
+.holoBox{width:440px; position:relative; background:linear-gradient(180deg, rgba(10,25,55,0.92), rgba(5,12,28,0.98)); border:1px solid #00aaff55; border-left:3px solid #00aaff; border-radius:20px; overflow:hidden; box-shadow:0 0 90px #00aaff55, inset 0 1px 0 rgba(255,255,255,0.08); transform-style:preserve-3d; animation:holoIn 0.7s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes holoIn{from{transform:translateY(40px) rotateX(10deg) scale(0.92); opacity:0} to{transform:translateY(0) rotateX(0) scale(1); opacity:1}}
+.gridBg{position:absolute; inset:0; background:linear-gradient(rgba(0,170,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,170,255,0.04) 1px, transparent 1px); background-size:22px 22px; pointer-events:none; opacity:0.5}
+.scanLine{position:absolute; left:0; width:100%; height:2px; background:linear-gradient(90deg, transparent, #00aaff, transparent); box-shadow:0 0 15px #00aaff; opacity:0.8; animation:scanMove 3s linear infinite; pointer-events:none}
+@keyframes scanMove{0%{top:-2px} 100%{top:100%}}
+.scanLine2{position:absolute; top:0; height:100%; width:2px; background:linear-gradient(180deg, transparent, #00aaff88, transparent); opacity:0.4; animation:scanMoveH 4s linear infinite}
+@keyframes scanMoveH{0%{left:0} 100%{left:100%}}
+.holoHeader{position:relative; padding:20px 24px 0; display:flex; justify-content:space-between; align-items:center; z-index:2}
+.holoTag{font-size:0.55rem; color:#00aaff; letter-spacing:1.5px; background:#00aaff18; border:1px solid #00aaff44; padding:4px 10px; border-radius:99px; animation:tagPulse 2s infinite}
+@keyframes tagPulse{0%,100%{box-shadow:0 0 0px #00aaff} 50%{box-shadow:0 0 12px #00aaff88}}
+.holoTitle{position:relative; z-index:2; font-family:Inter,sans-serif; font-weight:900; font-size:1.45rem; color:#fff; margin:14px 24px 4px; line-height:0.95; text-transform:uppercase; min-height:58px}
+.holoTitle span{color:#00aaff; text-shadow:0 0 18px #00aaff}
+.holoDesc{position:relative; z-index:2; margin:10px 24px 18px; color:#8fb0d0; font-size:0.80rem; line-height:1.6; min-height:44px; border-left:2px solid #00aaff33; padding-left:12px}
+.holoStats{position:relative; z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0 24px 18px}
+.stat{background:linear-gradient(180deg, rgba(0,170,255,0.08), rgba(0,170,255,0.02)); border:1px solid rgba(0,170,255,0.18); border-radius:12px; padding:11px 12px; position:relative; overflow:hidden; transition:0.3s}
+.stat b{display:block; color:#fff; font-size:0.72rem; position:relative; z-index:1}
+.stat i{font-style:normal; color:#00aaff; font-size:0.6rem; position:relative; z-index:1}
+.holoActions{position:relative; z-index:2; padding:16px 24px 20px; display:flex; gap:10px; background:rgba(0,0,0,0.35); border-top:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(8px)}
+.btnHolo{flex:1; padding:13px; border-radius:12px; border:none; font-weight:800; font-size:0.8rem; cursor:pointer; transition:0.25s cubic-bezier(.16,1,.3,1); position:relative; overflow:hidden}
+.btnMain{background:linear-gradient(180deg, #00aaff, #0088dd); color:#fff; box-shadow:0 0 30px #00aaff66, inset 0 1px 0 rgba(255,255,255,0.2)}
+.btnMain:hover{transform:translateY(-2px) scale(1.02); box-shadow:0 0 45px #00aaff88}
+.btnGhost{background:rgba(255,255,255,0.05); color:#7aa0bf; border:1px solid rgba(255,255,255,0.1)}
+.cursorBlink::after{content:'▌'; color:#00aaff; animation:blinkCur 0.8s infinite; margin-left:2px}
+@keyframes blinkCur{50%{opacity:0}}
+#greenModal{position:fixed; inset:0; z-index:110; background:rgba(0,0,0,0.84); backdrop-filter:blur(16px); display:none; place-items:center; perspective:1200px}
+#greenModal.on{display:grid}
+.greenBox{width:420px; position:relative; background:linear-gradient(180deg,#0b221a,#06140f); border:1px solid #00ff8844; border-left:3px solid #00ff88; border-radius:20px; padding:28px; box-shadow:0 0 70px #00ff8844, inset 0 1px 0 rgba(255,255,255,0.08); transform-style:preserve-3d; animation:holoIn 0.6s cubic-bezier(.16,1,.3,1)}
+.greenBox h2{position:relative; z-index:2; color:#00ff88; font-family:Inter,sans-serif; font-size:1.15rem; letter-spacing:1px; margin-bottom:6px; text-shadow:0 0 15px #00ff88aa}
+.greenBox p{position:relative; z-index:2; color:#7ab89a; font-size:0.68rem; margin-bottom:20px; min-height:16px}
+.opt{position:relative; z-index:2; width:100%; padding:14px 16px; margin-bottom:10px; border-radius:14px; border:1px solid #00ff8855; background:linear-gradient(180deg, rgba(0,255,136,0.08), rgba(0,255,136,0.02)); color:#fff; font-weight:800; font-size:0.85rem; cursor:pointer; text-align:left; display:flex; justify-content:space-between; align-items:center; opacity:0; transform:translateY(14px); transition:0.45s cubic-bezier(.16,1,.3,1); pointer-events:none; overflow:hidden}
+.opt.on{opacity:1; transform:translateY(0); pointer-events:auto}
+.opt:hover{background:rgba(0,255,136,0.15); border-color:#00ff88; transform:translateY(-2px) scale(1.02); box-shadow:0 10px 30px #00ff8855}
+.opt small{display:block; font-weight:400; font-size:0.68rem; color:#7ab89a; margin-top:3px}
+.opt span:last-child{color:#00ff88; font-size:1.1rem}
+#divulgacaoModal{position:fixed; inset:0; z-index:115; background:rgba(0,0,0,0.92); backdrop-filter:blur(20px); display:none; place-items:center; perspective:1200px; overflow-y:auto; padding:20px}
+#divulgacaoModal.on{display:grid; animation:holoFade 0.5s ease}
+.divBox{width:1100px; max-width:95vw; position:relative; background:linear-gradient(180deg, rgba(10,25,55,0.98), rgba(5,12,28,0.99)); border:1px solid #00f0ff55; border-left:3px solid #00f0ff; border-radius:24px; padding:32px; box-shadow:0 0 100px #00aaff44, inset 0 1px 0 rgba(255,255,255,0.08); animation:holoIn 0.7s cubic-bezier(.16,1,.3,1)}
+.divGrid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:22px}
+.divCard{position:relative; background:linear-gradient(180deg, rgba(15,35,75,0.9), rgba(8,18,40,0.85)); border:1px solid rgba(0,240,255,0.25); border-radius:18px; padding:24px; overflow:hidden; transition:0.4s; transform-style:preserve-3d}
+.divCard:hover{transform:translateY(-8px) rotateX(4deg) rotateY(-4deg); border-color:#00f0ff; box-shadow:0 20px 60px rgba(0,240,255,0.3)}
+.divCard .tagLive{position:absolute; top:14px; right:14px; font-size:0.55rem; padding:3px 8px; border-radius:20px; background:#00ff88; color:#000; font-weight:700; box-shadow:0 0 12px #00ff88}
+.divCard h3{font-family:Inter,sans-serif; font-size:1.1rem; color:#fff; margin:12px 0 8px; line-height:1.1}
+.divCard h3 span{color:#00f0ff}
+.divCard p{color:#8fb0d0; font-size:0.75rem; line-height:1.5; min-height:48px}
+.divStats{display:flex; gap:8px; margin:14px 0}
+.divStats div{flex:1; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:8px; text-align:center}
+.divStats b{display:block; color:#00f0ff; font-size:0.7rem}
+.divStats i{font-style:normal; color:#6aa; font-size:0.55rem}
+.btnDiv{width:100%; padding:12px; border-radius:12px; border:1px solid #00f0ff; background:transparent; color:#00f0ff; font-weight:800; font-size:0.78rem; cursor:pointer; transition:0.3s; margin-top:10px}
+.btnDiv:hover{background:#00f0ff; color:#020812; box-shadow:0 0 25px #00f0ff}
+#toast{position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:rgba(0,240,255,0.12); border:1px solid #00f0ff; backdrop-filter:blur(15px); color:#fff; font-size:0.7rem; padding:10px 18px; border-radius:100px; opacity:0; pointer-events:none; transition:0.4s; z-index:200}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+@media(max-width:900px){.divGrid{grid-template-columns:1fr} .divBox{width:95vw}}
+#confiancaModal{position:fixed; inset:0; z-index:116; background:radial-gradient(ellipse at center, rgba(0,255,136,0.12), rgba(0,0,0,0.94)); backdrop-filter:blur(24px); display:none; place-items:center; perspective:1300px; padding:20px}
+#confiancaModal.on{display:grid; animation:holoFade 0.6s ease}
+.confiancaBox{width:520px; max-width:95vw; position:relative; background:linear-gradient(180deg, rgba(12,45,35,0.98), rgba(6,20,16,0.99)); border:1px solid rgba(0,255,136,0.35); border-left:3px solid #00ff88; border-right:3px solid #00f0ff; border-radius:26px; padding:34px; box-shadow:0 0 100px rgba(0,255,136,0.25), 0 0 60px rgba(0,240,255,0.15), inset 0 1px 0 rgba(255,255,255,0.1); animation:holoIn 0.8s cubic-bezier(.16,1,.3,1); transform-style:preserve-3d; overflow:hidden}
+.sealRow{display:flex;gap:8px;margin:18px 0;flex-wrap:wrap}
+.sealMini{border:1px solid rgba(0,255,136,0.35);background:rgba(0,255,136,0.1);border-radius:100px;padding:6px 12px;font-size:0.58rem;color:#00ff88;font-family:'JetBrains Mono';display:flex;align-items:center;gap:5px}
+.sealMini.cyan{border-color:rgba(0,240,255,0.35);background:rgba(0,240,255,0.1);color:#00f0ff}
+.btnConfianca{width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(90deg,#00ff88,#00f0ff);color:#020812;font-weight:900;font-size:0.85rem;cursor:pointer;margin-top:20px;position:relative;z-index:2}
+#centralModal{position:fixed; inset:0; z-index:117; background:radial-gradient(ellipse at center, rgba(124,92,255,0.18), rgba(0,0,0,0.96)); backdrop-filter:blur(26px); display:none; place-items:center; perspective:1300px; padding:20px; overflow-y:auto}
+#centralModal.on{display:grid; animation:holoFade 0.6s ease}
+.centralBox{width:1150px; max-width:96vw; position:relative; background:linear-gradient(180deg, rgba(22,18,48,0.98), rgba(10,8,24,0.99)); border:1px solid rgba(124,92,255,0.4); border-left:4px solid #7c5cff; border-right:2px solid #00aaff; border-radius:28px; padding:36px; box-shadow:0 0 120px rgba(124,92,255,0.3), 0 0 60px rgba(0,170,255,0.18), inset 0 1px 0 rgba(255,255,255,0.12); animation:holoIn 0.85s cubic-bezier(.16,1,.3,1); transform-style:preserve-3d; overflow:hidden}
+.centralHeader{display:flex; justify-content:space-between; align-items:flex-start; gap:20px; position:relative; z-index:2}
+.centralTabs{display:flex; gap:8px; margin:24px 0 18px; position:relative; z-index:2; flex-wrap:wrap}
+.tabCentral{padding:10px 18px; border-radius:100px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:#8b8b9b; font-size:0.66rem; font-weight:800; cursor:pointer; transition:0.25s; letter-spacing:0.5px}
+.tabCentral.on{background:linear-gradient(90deg,#7c5cff,#a78bfa); border-color:#7c5cff; color:#fff; box-shadow:0 0 25px #7c5cff88}
+.centralFeed{display:none; grid-template-columns:repeat(4,1fr); gap:16px; position:relative; z-index:2}
+.centralFeed.on{display:grid}
+.centralCard{position:relative; background:linear-gradient(180deg, rgba(28,24,52,0.92), rgba(14,12,28,0.92)); border:1px solid rgba(124,92,255,0.22); border-radius:18px; padding:22px; overflow:hidden; transition:0.4s cubic-bezier(.16,1,.3,1); transform-style:preserve-3d}
+.centralCard:hover{transform:translateY(-8px) rotateX(4deg) rotateY(-3deg); border-color:#7c5cff; box-shadow:0 20px 60px rgba(124,92,255,0.32)}
+.centralCard .iconC{width:48px; height:48px; border-radius:14px; display:grid; place-items:center; font-size:24px; margin-bottom:14px; background:linear-gradient(135deg, #7c5cff22, #00aaff22); border:1px solid #7c5cff33; box-shadow:0 0 20px #7c5cff22}
+.centralCard h4{color:#fff; font-family:Inter,sans-serif; font-size:0.98rem; margin-bottom:8px}
+.centralCard p{color:#8b8b9b; font-size:0.70rem; line-height:1.55; min-height:42px}
+.centralCard .metaC{display:flex; gap:6px; margin-top:12px; flex-wrap:wrap}
+.metaC span{font-size:0.52rem; padding:4px 9px; border-radius:100px; border:1px solid rgba(255,255,255,0.12); color:#a78bfa; background:rgba(124,92,255,0.10)}
+.centralCard .btnC{width:100%; margin-top:16px; padding:11px; border-radius:11px; border:1px solid #7c5cff; background:transparent; color:#a78bfa; font-weight:800; font-size:0.72rem; cursor:pointer; transition:0.25s}
+.centralCard .btnC:hover{background:#7c5cff; color:#fff; box-shadow:0 0 25px #7c5cff88}
+@media(max-width:1100px){.centralFeed.on{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.centralFeed.on{grid-template-columns:1fr} .centralHeader{flex-direction:column}}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@900&display=swap" rel="stylesheet">
+<script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }</script>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div class="hud" id="hud">
+  <div class="corner c1"></div><div class="corner c2"></div><div class="corner c3"></div><div class="corner c4"></div>
+  <div class="topLeft">● SYSTEM.MIND / TECH_BLUE PROTOCOL<div style="margin-top:7px"><b>GOOGLE<br>LOJISTAS<br><span>DA SUSTO<br>CONCORRÊNCIA</span></b></div><div style="margin-top:9px; color:#6aa0ff; font-size:0.58rem">LAT: -29.6369° LON: -51.0128°<br>• ONLINE • BUILD 53 • CENTRAL_ATIVA</div></div>
+  <div class="dataRight">PLANET: EARTH_TECH_BLUE<br>MODE: <i id="mode">HOLO_TECH</i><br>CORE: <i id="bpm">72 BPM • BLUE</i><br>CENTRAL: <i style="color:#7c5cff">ONLINE • GAME LEVEL</i></div>
+  <button class="btnDimensions" onclick="location.href='mind-dimensions.html'">🌀 EXPLORE MEUS PORTAIS</button>
+  <div class="bottomBar"><div class="dot"></div> NOVA: CENTRAL DE INTELIGÊNCIA • <span style="color:#7c5cff">[ FERRAMENTAS + NOVIDADES + SERVIÇOS + OPORTUNIDADES ]</span></div>
+</div>
+
+<div id="holoOverlay"></div>
+<div id="tooltip"></div>
+
+<div id="holoCard"><div class="holoBox" id="holoBox"><div class="gridBg"></div><div class="scanLine"></div><div class="scanLine2"></div><div class="holoHeader"><div class="holoTag" id="hTag">● PROTOCOL</div><div style="color:#445; font-size:0.55rem" id="hCoords">LAT 0 LON 0</div></div><div class="holoTitle" id="hTitle"></div><div class="holoDesc" id="hDesc"></div><div class="holoStats" id="hStats"></div><div class="holoActions"><button class="btnHolo btnGhost" onclick="closeHolo()">VOLTAR [ESC]</button><button class="btnHolo btnMain" id="hBtn">ENTRAR →</button></div></div></div>
+
+<div id="greenModal"><div class="greenBox" id="greenBox"><div class="gridBg"></div><div class="scanLine"></div><h2>ILHA 4 • CRIAÇÃO</h2><p id="greenSub"></p><button class="opt" id="opt1" onclick="location.href='logo.html'"><div>🎨 LOGO <small id="leg1"></small></div><span>→</span></button><button class="opt" id="opt2" onclick="location.href='app.html'"><div>📱 APP <small id="leg2"></small></div><span>→</span></button><button class="opt" id="opt3" onclick="location.href='sites.html'"><div>🌐 SITES <small id="leg3"></small></div><span>→</span></button><button onclick="closeHolo()" style="position:relative; z-index:2; margin-top:12px; width:100%; padding:10px; border-radius:10px; border:1px solid #ffffff15; background:rgba(255,255,255,0.05); color:#7a9e92; font-weight:700; font-size:0.7rem; cursor:pointer">FECHAR PORTAL [X]</button></div></div>
+
+<div id="divulgacaoModal"><div class="divBox" id="divBox"><div class="gridBg"></div><div class="scanLine"></div><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="color:#00f0ff;font-family:Inter,sans-serif;font-size:1.3rem;text-shadow:0 0 15px #00f0ff">ILHA 5 • DIVULGAÇÃO • PROTOCOLO ATIVO</h2><button onclick="closeHolo()" style="padding:8px 16px;border-radius:100px;border:1px solid #ffffff22;background:rgba(255,255,255,0.05);color:#8ab;cursor:pointer;font-size:0.7rem;font-weight:700">✕ VOLTAR AO MUNDO</button></div><p id="divSub" style="color:#7ab; font-size:0.72rem; margin-top:8px"></p><div class="divGrid"><div class="divCard"><div class="tagLive">● AO VIVO</div><div style="font-size:0.6rem;color:#00f0ff;letter-spacing:1px">01_DIVULGACAO <b style="background:#00f0ff22;padding:2px 6px;border-radius:8px;color:#fff">SITES</b></div><div style="width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:14px 0;background:linear-gradient(135deg,#3a7bff,#00f0ff)">🌐</div><h3>DESTAQUE NOS <span>SITES MIND</span></h3><p>Sua empresa em destaque na aba SITES do perfil oficial da MIND.</p><div class="divStats"><div><b>8.4k</b><i>VISITAS</i></div><div><b>TOP 3</b><i>RANKING</i></div><div><b>24H</b><i>NO AR</i></div></div><button class="btnDiv" onclick="ativarSites(event)">ATIVAR DESTAQUE →</button></div><div class="divCard"><div style="font-size:0.6rem;color:#00f0ff;letter-spacing:1px">02_DIVULGACAO <b style="background:#00f0ff22;padding:2px 6px;border-radius:8px;color:#fff">POSTS</b></div><div style="width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:14px 0;background:linear-gradient(135deg,#7c5cff,#ff4ecd)">📦</div><h3>PACOTES DE <span>POSTS PRONTOS</span></h3><p>Pacotes já criados no VS. Carrossel, Stories e Reels.</p><div class="divStats"><div><b>12</b><i>POSTS</i></div><div><b>100%</b><i>EDITÁVEL</i></div><div><b>VS</b><i>READY</i></div></div><button class="btnDiv" onclick="verPacotes(event)">VER PACOTES →</button></div><div class="divCard"><div style="font-size:0.6rem;color:#00f0ff;letter-spacing:1px">03_DIVULGACAO <b style="background:#00f0ff22;padding:2px 6px;border-radius:8px;color:#fff">INSTA</b></div><div style="width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:14px 0;background:linear-gradient(135deg,#ff7a00,#ffcc00)">📈</div><h3>IMPULSO NO <span>INSTAGRAM</span></h3><p>Análise de bio, hashtags que convertem, roteiros de stories.</p><div class="divStats"><div><b>7x</b><i>ALCANCE</i></div><div><b>IA</b><i>LEGENDAS</i></div><div><b>#</b><i>HACK</i></div></div><button class="btnDiv" onclick="impulsionarInsta(event)">IMPULSIONAR AGORA →</button></div></div></div></div>
+
+<div id="confiancaModal"><div class="confiancaBox" id="confiancaBox"><div class="gridBg"></div><div class="scanLine" style="background:linear-gradient(90deg,transparent,#00ff88,transparent);box-shadow:0 0 15px #00ff88"></div><div style="position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center"><div style="font-size:0.6rem;color:#00ff88;letter-spacing:2px">● PROTOCOLO: CONFIANÇA_VERIFICADA</div><button onclick="closeHolo()" style="padding:6px 14px;border-radius:100px;border:1px solid #ffffff22;background:rgba(255,255,255,0.05);color:#8ab;cursor:pointer;font-size:0.65rem">✕ VOLTAR</button></div><div style="position:relative;z-index:2;margin-top:20px"><h2 style="font-family:Inter;font-size:2rem;line-height:0.85;color:white">SUA<br><span style="color:#00ff88;text-shadow:0 0 20px #00ff88">CONFIANÇA</span></h2><p id="confSub" style="color:#8fb0d0;font-size:0.75rem;margin-top:12px;line-height:1.6"></p><div class="sealRow"><div class="sealMini">✓ 127 LOJISTAS</div><div class="sealMini cyan">✓ GOOGLE VERIFICADO</div><div class="sealMini">✓ SEM GOLPE</div><div class="sealMini cyan">✓ CÓDIGO PRÓPRIO</div></div><button class="btnConfianca" onclick="location.href='confianca.html'">VER PROVAS REAIS →</button></div></div></div>
+
+<div id="centralModal"><div class="centralBox" id="centralBox"><div class="gridBg"></div><div class="scanLine" style="background:linear-gradient(90deg,transparent,#7c5cff,transparent); box-shadow:0 0 18px #7c5cff"></div><div class="centralHeader"><div><div style="font-size:0.62rem;color:#7c5cff;letter-spacing:2px; font-weight:700">● SYSTEM.MIND / CENTRAL_INTELLIGENCE • GAME LEVEL • ONLINE</div><h2 style="font-family:Inter,sans-serif;font-size:2.4rem;line-height:0.88;color:white;margin-top:12px">CENTRAL DE<br><span style="color:#7c5cff;text-shadow:0 0 24px #7c5cff">INTELIGÊNCIA</span></h2><p id="centralSub" style="color:#8fb0d0;font-size:0.78rem;margin-top:14px;line-height:1.7;max-width:640px;font-family:'JetBrains Mono'"></p></div><button onclick="closeHolo()" style="padding:9px 18px;border-radius:100px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:#aab;cursor:pointer;font-size:0.7rem;font-weight:700;position:relative;z-index:2">✕ VOLTAR AO MUNDO</button></div><div class="centralTabs"><button class="tabCentral on" data-tab="ferramentas" onclick="switchCentralTab('ferramentas',this)">🛠️ FERRAMENTAS DISPONÍVEIS</button><button class="tabCentral" data-tab="novidades" onclick="switchCentralTab('novidades',this)">✨ NOVIDADES</button><button class="tabCentral" data-tab="servicos" onclick="switchCentralTab('servicos',this)">🚀 SERVIÇOS</button><button class="tabCentral" data-tab="oportunidades" onclick="switchCentralTab('oportunidades',this)">💡 OPORTUNIDADES LOJISTAS</button></div><div class="centralFeed on" id="feed-ferramentas"><div class="centralCard"><div class="iconC">🗺️</div><h4>Mapa do Susto</h4><p>Veja quem rouba seus clientes no Google em tempo real, com prova.</p><div class="metaC"><span>ILHA 2</span><span>GOOGLE</span><span>GRÁTIS</span></div><button class="btnC" onclick="location.href='mapa-susto.html'">ABRIR FERRAMENTA →</button></div><div class="centralCard"><div class="iconC">🔍</div><h4>Raio-X da Loja</h4><p>Diagnóstico completo em 30s com plano de ação pra corrigir.</p><div class="metaC"><span>ILHA 3</span><span>DIAGNÓSTICO</span><span>IA</span></div><button class="btnC" onclick="location.href='raiox.html'">FAZER RAIO-X →</button></div><div class="centralCard"><div class="iconC">🎨</div><h4>Mundo Criação</h4><p>Logos, Apps e Sites que vendem 24h no Google.</p><div class="metaC"><span>ILHA 4</span><span>CRIAÇÃO</span><span>PREMIUM</span></div><button class="btnC" onclick="document.getElementById('centralModal').classList.remove('on'); document.getElementById('greenModal').classList.add('on');">VER CRIAÇÃO →</button></div><div class="centralCard"><div class="iconC">📢</div><h4>Ilha Divulgação</h4><p>3 nódulos ativos pra sua empresa dominar o radar local.</p><div class="metaC"><span>ILHA 5</span><span>EXPOSIÇÃO</span><span>AO VIVO</span></div><button class="btnC" onclick="document.getElementById('centralModal').classList.remove('on'); document.getElementById('divulgacaoModal').classList.add('on');">ENTRAR NA ILHA →</button></div></div><div class="centralFeed" id="feed-novidades"><div class="centralCard"><div class="iconC">🟣</div><h4>Central v1.0 no ar</h4><p>Agora o lojista vê tudo em um lugar só, sem se perder no mundo 3D.</p><div class="metaC"><span>HOJE</span><span>NEW • BUILD 53</span></div><button class="btnC" style="opacity:0.6">NOVO SISTEMA</button></div><div class="centralCard"><div class="iconC">🛡️</div><h4>Selo Confiança Verificada</h4><p>Provas reais, CNPJ ativo, 127 lojistas. Fim da desconfiança de golpe.</p><div class="metaC"><span>ILHA CONFIANÇA</span><span>VERIFICADO</span></div><button class="btnC" onclick="location.href='confianca.html'">VER PROVAS →</button></div><div class="centralCard"><div class="iconC">⚡</div><h4>Protocolo Tech Blue Cinematic</h4><p>Mundo 3D com scanner, typewriter, holo e pulsação em tempo real.</p><div class="metaC"><span>BUILD 53</span><span>GAME LEVEL</span></div><button class="btnC" style="opacity:0.6">ATIVO</button></div><div class="centralCard"><div class="iconC">📱</div><h4>Mobile First 100%</h4><p>Todas as ilhas agora abrem perfeitas no celular, sem cortes.</p><div class="metaC"><span>FIX</span><span>MOBILE</span></div><button class="btnC" style="opacity:0.6">CORRIGIDO</button></div></div><div class="centralFeed" id="feed-servicos"><div class="centralCard"><div class="iconC">🌐</div><h4>Sites que Vendem</h4><p>Site otimizado pro Google com WhatsApp direto e selo MIND.</p><div class="metaC"><span>A PARTIR R$ 297</span><span>GOOGLE</span></div><button class="btnC" onclick="location.href='sites.html'">VER SITES →</button></div><div class="centralCard"><div class="iconC">📦</div><h4>Pacotes de Posts</h4><p>Carrossel, Stories e Reels prontos com copy que vende de verdade.</p><div class="metaC"><span>12 POSTS</span><span>EDITÁVEL</span></div><button class="btnC" onclick="location.href='pacotes.html'">VER PACOTES →</button></div><div class="centralCard"><div class="iconC">🎯</div><h4>Tráfego Local Pago</h4><p>Sua loja aparece pra quem tá perto e pronto pra comprar hoje.</p><div class="metaC"><span>EM BREVE</span><span>LOCAL ADS</span></div><button class="btnC" style="opacity:0.5">LISTA DE ESPERA</button></div><div class="centralCard"><div class="iconC">🤖</div><h4>Assistente MIND (03)</h4><p>Próximo passo: bot inteligente que guia o lojista pra solução certa.</p><div class="metaC"><span>ROADMAP</span><span>03 • ASSISTENTE</span></div><button class="btnC" style="opacity:0.5">EM DESENVOLVIMENTO</button></div></div><div class="centralFeed" id="feed-oportunidades"><div class="centralCard" style="border-color:#00ff88"><div class="iconC" style="background:linear-gradient(135deg,#00ff8822,#00f0ff22)">🏆</div><h4>Ranking Empresarial (02)</h4><p>Empresas que mais evoluem no MIND ganham destaque no topo e selo Ouro.</p><div class="metaC"><span>02 • RANKING</span><span>GAMIFICAÇÃO</span></div><button class="btnC" style="border-color:#00ff88;color:#00ff88">EM BREVE - VEM AÍ</button></div><div class="centralCard" style="border-color:#00f0ff"><div class="iconC">🏪</div><h4>Vitrine dos Lojistas (04)</h4><p>Sua empresa com página própria, produtos, serviços, localização e contato direto.</p><div class="metaC"><span>04 • VITRINE</span><span>LOJISTAS</span></div><button class="btnC" style="border-color:#00f0ff;color:#00f0ff">EM BREVE - VEM AÍ</button></div><div class="centralCard"><div class="iconC">💎</div><h4>Destaque nos Sites MIND</h4><p>Apareça no perfil oficial com 8.4k de tráfego orgânico 24h por dia.</p><div class="metaC"><span>8.4K VISITAS</span><span>TOP 3</span></div><button class="btnC" onclick="ativarSites(event)">ATIVAR AGORA →</button></div><div class="centralCard"><div class="iconC">📈</div><h4>Impulso Instagram</h4><p>Análise de bio, hashtags que convertem e roteiros que dobram alcance.</p><div class="metaC"><span>7X ALCANCE</span><span>IA LEGENDAS</span></div><button class="btnC" onclick="impulsionarInsta(event)">IMPULSIONAR →</button></div></div><p style="position:relative;z-index:2;text-align:center;color:rgba(255,255,255,0.28);font-size:0.58rem;margin-top:26px;font-family:'JetBrains Mono'">CENTRAL DE INTELIGÊNCIA • 01 • PROTOCOLO: MIND_OS • ONLINE • BUILD 53 • SAPIRANGA-RS • GAME LEVEL TECH</p></div></div>
+<div id="toast">Mensagem copiada! Cole no Direct ✓</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x000000);
+const camera=new THREE.PerspectiveCamera(58, innerWidth/innerHeight, 0.1, 1000); camera.position.set(0,0.6,7.0);
+const renderer=new THREE.WebGLRenderer({canvas:document.getElementById('canvas'), antialias:true});
+renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.35;
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight), 0.55, 0.35, 0.4));
+const controls=new OrbitControls(camera, renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.08; controls.enablePan=false; controls.minDistance=3; controls.maxDistance=7.8; controls.autoRotate=true; controls.autoRotateSpeed=0.2;
+scene.add(new THREE.AmbientLight(0x001133,0.6));
+const sun=new THREE.DirectionalLight(0xffffff,1.2); sun.position.set(5,3,5); scene.add(sun);
+const blueLight=new THREE.PointLight(0x00aaff, 2.5, 10); blueLight.position.set(-4,2,3); scene.add(blueLight);
+const blueLight2=new THREE.PointLight(0x0088ff, 2.0, 12); blueLight2.position.set(4,-1,-3); scene.add(blueLight2);
+const planetGroup=new THREE.Group(); scene.add(planetGroup);
+const loader=new THREE.TextureLoader();
+const dayMap=loader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+const nightMap=loader.load('https://threejs.org/examples/textures/planets/earth_lights_2048.png');
+const cloudMap=loader.load('https://threejs.org/examples/textures/planets/earth_clouds_1024.png');
+const earth=new THREE.Mesh(new THREE.SphereGeometry(2,96,96), new THREE.MeshPhongMaterial({map:dayMap, emissiveMap:nightMap, emissive:new THREE.Color(0x66aaff), emissiveIntensity:0.55, shininess:30, specular:new THREE.Color(0x333333)}));
+planetGroup.add(earth);
+const clouds=new THREE.Mesh(new THREE.SphereGeometry(2.015,96,96), new THREE.MeshPhongMaterial({map:cloudMap, transparent:true, opacity:0.42, depthWrite:false}));
+planetGroup.add(clouds);
+const blueNeon1=new THREE.Mesh(new THREE.SphereGeometry(2.22,64,64), new THREE.ShaderMaterial({transparent:true, side:THREE.BackSide, blending:THREE.AdditiveBlending, vertexShader:`varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`, fragmentShader:`varying vec3 vN; void main(){ float f=pow(0.72-dot(vN,vec3(0,0,1)),3.0); gl_FragColor=vec4(0.0,0.55,1.0,1.0)*f*1.8;}`}));
+planetGroup.add(blueNeon1);
+const blueNeon2=new THREE.Mesh(new THREE.SphereGeometry(2.38,64,64), new THREE.MeshBasicMaterial({color:0x0088ff, transparent:true, opacity:0.14, side:THREE.BackSide, blending:THREE.AdditiveBlending}));
+planetGroup.add(blueNeon2);
+const blueNeon3=new THREE.Mesh(new THREE.SphereGeometry(2.55,64,64), new THREE.MeshBasicMaterial({color:0x00aaff, transparent:true, opacity:0.06, side:THREE.BackSide, blending:THREE.AdditiveBlending}));
+planetGroup.add(blueNeon3);
+const gridGeo=new THREE.SphereGeometry(2.65, 24, 24);
+const gridMat=new THREE.MeshBasicMaterial({color:0x00aaff, wireframe:true, transparent:true, opacity:0.07});
+const grid=new THREE.Mesh(gridGeo, gridMat); planetGroup.add(grid);
+const coreGlow=new THREE.Mesh(new THREE.SphereGeometry(2.15,32,32), new THREE.MeshBasicMaterial({color:0x00aaff, transparent:true, opacity:0, blending:THREE.AdditiveBlending, side:THREE.BackSide}));
+planetGroup.add(coreGlow);
+const portalRing=new THREE.Mesh(new THREE.RingGeometry(0.18,0.26,48), new THREE.MeshBasicMaterial({color:0x00aaff, transparent:true, opacity:0, side:THREE.DoubleSide, blending:THREE.AdditiveBlending}));
+const portalRing2=new THREE.Mesh(new THREE.RingGeometry(0.28,0.30,48), new THREE.MeshBasicMaterial({color:0x00aaff, transparent:true, opacity:0, side:THREE.DoubleSide}));
+const portalGlow=new THREE.Mesh(new THREE.SphereGeometry(0.15,16,16), new THREE.MeshBasicMaterial({color:0x00aaff, transparent:true, opacity:0, blending:THREE.AdditiveBlending}));
+planetGroup.add(portalRing); planetGroup.add(portalRing2); planetGroup.add(portalGlow);
+function createOrbit(radius, tiltX, tiltY, color){
+  const g=new THREE.Group();
+  const pts=[]; for(let i=0;i<240;i++){ if(i%3!==0) continue; const a=(i/240)*Math.PI*2; pts.push(new THREE.Vector3(Math.cos(a)*radius,0,Math.sin(a)*radius)); }
+  const points=new THREE.Points(new THREE.BufferGeometry().setFromPoints(pts), new THREE.PointsMaterial({size:0.035, color:color, transparent:true, opacity:0.85}));
+  g.add(points);
+  const lineCurve=new THREE.EllipseCurve(0,0,radius,radius,0,Math.PI*2,false,0);
+  const linePts=lineCurve.getPoints(120);
+  const lineGeo=new THREE.BufferGeometry().setFromPoints(linePts);
+  const lineMat=new THREE.LineBasicMaterial({color:color, transparent:true, opacity:0.18});
+  g.add(new THREE.Line(lineGeo, lineMat));
+  const sat=new THREE.Mesh(new THREE.SphereGeometry(0.048,12,12), new THREE.MeshBasicMaterial({color:color}));
+  g.add(sat); g.userData={sat, radius, speed:0.007+Math.random()*0.01}; g.rotation.x=tiltX; g.rotation.y=tiltY; return g;
+}
+const orbitsGroup=new THREE.Group();
+orbitsGroup.add(createOrbit(2.72,0.3,0.2,0x00aaff)); orbitsGroup.add(createOrbit(2.90,-0.4,0.8,0x0088ff)); orbitsGroup.add(createOrbit(3.08,0.8,-0.3,0x22d3ee));
+orbitsGroup.add(createOrbit(3.26,0.5,0.5,0x00aaff)); orbitsGroup.add(createOrbit(3.44,-0.6,0.2,0x0088ff)); orbitsGroup.add(createOrbit(3.62,0.2,-0.6,0x00ccff));
+scene.add(orbitsGroup);
+const stars=new THREE.Points(new THREE.BufferGeometry().setFromPoints(Array.from({length:12000},()=>new THREE.Vector3((Math.random()-0.5)*120,(Math.random()-0.5)*120,(Math.random()-0.5)*120))), new THREE.PointsMaterial({size:0.018, color:0xaaccff, transparent:true, opacity:0.45})); scene.add(stars);
+const dust=new THREE.Points(new THREE.BufferGeometry().setFromPoints(Array.from({length:1000},()=>new THREE.Vector3((Math.random()-0.5)*10,(Math.random()-0.5)*10,(Math.random()-0.5)*10))), new THREE.PointsMaterial({size:0.015, color:0x00aaff, transparent:true, opacity:0.35})); scene.add(dust);
+function latLon(lat,lon,r){ const p=(90-lat)*Math.PI/180, t=(lon+180)*Math.PI/180; return new THREE.Vector3(-r*Math.sin(p)*Math.cos(t), r*Math.cos(p), r*Math.sin(p)*Math.sin(t)); }
+const datas=[
+  {lat:80, lon:0, color:0x7c5cff, nome:'ILHA 0 - CENTRAL', desc:'Central de Inteligência • Hub Principal', tipo:'central', page:'central.html', info:{title:'CENTRAL DE<br><span>INTELIGÊNCIA</span>', desc:'O painel que junta tudo. Ferramentas, novidades, serviços e oportunidades para o lojista não se perder.', stats:[{k:'Ferramentas', v:'4 Ativas'}, {k:'Status', v:'● HUB PRINCIPAL'}, {k:'Build', v:'53 GAME LEVEL'}], btn:'ABRIR CENTRAL'}},
+  {lat:38, lon:-95, color:0x00ffcc, nome:'ILHA 1 - VITRINE', desc:'Vitrine dos Lojistas • Ao Vivo', tipo:'vitrine', page:'vitrine.html', info:{title:'VITRINE<br><span>LOJISTAS</span>', desc:'Sua empresa com página própria, produtos, serviços, localização e contato direto. Entre na vitrine oficial da MIND.', stats:[{k:'Visibilidade', v:'8.4k visitas'}, {k:'Status', v:'● AO VIVO • EUA'}, {k:'Tipo', v:'Vitrine Premium'}], btn:'ENTRAR NA VITRINE'}},
+  {lat:-15, lon:-55, color:0x00ff88, nome:'ILHA 1 - SUA CONFIANÇA', desc:'Sua Confiança • Verificado', tipo:'confianca', page:'confianca.html', info:{title:'SUA<br><span>CONFIANÇA</span>', desc:'Área premium verificada. Provas reais de que MIND não é golpe.', stats:[{k:'Verificado', v:'CNPJ Ativo'}, {k:'Base', v:'Sapiranga-RS'}, {k:'Prova', v:'127 Lojistas'}], btn:'VER PROVAS REAIS'}},
+  {lat:51, lon:10, color:0xff3b3b, nome:'ILHA 2 - CONCORRÊNCIA', desc:'Mapa do Susto', tipo:'conc', page:'mapa-susto.html', info:{title:'MAPA DO<br><span>SUSTO</span>', desc:'Veja em tempo real quem está aparecendo no Google quando seu cliente pesquisa.', stats:[{k:'O que faz', v:'Mostra concorrentes no Google'}, {k:'Por que dói', v:'Você perde vendas sem saber'}, {k:'Resultado', v:'Plano para passar na frente'}], btn:'VER MAPA DO SUSTO'}},
+  {lat:5, lon:20, color:0xfacc15, nome:'ILHA 3 - RAIO-X', desc:'Raio-X', tipo:'raiox', page:'raiox.html', info:{title:'RAIO-X<br><span>DA LOJA</span>', desc:'Diagnóstico completo em 30 segundos.', stats:[{k:'Analisa', v:'Google, Instagram, Site'}, {k:'Encontra', v:'3 erros que matam vendas'}, {k:'Entrega', v:'Plano de ação grátis'}], btn:'FAZER RAIO-X AGORA'}},
+  {lat:30, lon:85, color:0x00ff88, nome:'ILHA 4 - VENDAS', desc:'Criação', tipo:'vendas', page:'sites.html', info:{title:'MUNDO<br><span>CRIAÇÃO</span>', desc:'Tudo que sua loja precisa para vender mais.', stats:[], btn:''}},
+  {lat:-35, lon:25, color:0x00f0ff, nome:'ILHA 5 - DIVULGAÇÃO', desc:'Ilha de Divulgação - 3 Nódulos', tipo:'divulgacao', page:'ilha-divulgacao.html', info:{title:'ILHA DE<br><span>DIVULGAÇÃO</span>', desc:'Sua empresa deixa de ser invisível e começa a dominar o radar.', stats:[{k:'Nódulos', v:'3 Ativos'}, {k:'Status', v:'● AO VIVO'}, {k:'Protocolo', v:'EXPOSIÇÃO_MAX'}], btn:'ENTRAR NA ILHA 5'}},
+];
+const markers=[];
+datas.forEach(d=>{
+  const pos=latLon(d.lat,d.lon,2.10);
+  [0.18,0.30].forEach((r,i)=>{
+    const ring=new THREE.Mesh(new THREE.RingGeometry(r, r+0.035, 36), new THREE.MeshBasicMaterial({color:d.color, transparent:true, opacity:i?0.28:0.9, side:THREE.DoubleSide}));
+    ring.position.copy(pos); ring.lookAt(0,0,0); ring.userData=d; planetGroup.add(ring); markers.push(ring);
+  });
+  const light=new THREE.PointLight(d.color, 0.9, 1.5); light.position.copy(pos); planetGroup.add(light);
+  const dot=new THREE.Mesh(new THREE.SphereGeometry(0.055,12,12), new THREE.MeshBasicMaterial({color:d.color})); 
+  dot.position.copy(pos); dot.userData={...d, isDot:true, light, origLat:d.lat, origLon:d.lon}; planetGroup.add(dot); markers.push(dot);
+});
+const raioxHitbox = new THREE.Mesh(new THREE.SphereGeometry(0.6, 18, 18), new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false}));
+raioxHitbox.position.copy(latLon(5, 20, 2.18)); raioxHitbox.userData = datas[4]; planetGroup.add(raioxHitbox); markers.push(raioxHitbox);
+const concHitbox = new THREE.Mesh(new THREE.SphereGeometry(0.6, 18, 18), new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false}));
+concHitbox.position.copy(latLon(51, 10, 2.18)); concHitbox.userData = datas[3]; planetGroup.add(concHitbox); markers.push(concHitbox);
+const divulgacaoHitbox = new THREE.Mesh(new THREE.SphereGeometry(0.6, 18, 18), new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false}));
+divulgacaoHitbox.position.copy(latLon(-35, 25, 2.18)); divulgacaoHitbox.userData = datas[6]; planetGroup.add(divulgacaoHitbox); markers.push(divulgacaoHitbox);
+const confiancaHitbox = new THREE.Mesh(new THREE.SphereGeometry(0.6, 18, 18), new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false}));
+confiancaHitbox.position.copy(latLon(-15, -55, 2.18)); confiancaHitbox.userData = datas[2]; planetGroup.add(confiancaHitbox); markers.push(confiancaHitbox);
+const centralHitbox = new THREE.Mesh(new THREE.SphereGeometry(0.70, 18, 18), new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false}));
+centralHitbox.position.copy(latLon(80, 0, 2.18)); centralHitbox.userData = datas[0]; planetGroup.add(centralHitbox); markers.push(centralHitbox);
+const vitrineHitbox = new THREE.Mesh(new THREE.SphereGeometry(0.65, 18, 18), new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false}));
+vitrineHitbox.position.copy(latLon(38, -95, 2.18)); vitrineHitbox.userData = datas[1]; planetGroup.add(vitrineHitbox); markers.push(vitrineHitbox);
+const ray=new THREE.Raycaster(); const mouse=new THREE.Vector2(); const tooltip=document.getElementById('tooltip');
+renderer.domElement.addEventListener('mousemove', e=>{ mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1; tooltip.style.left=e.clientX+18+'px'; tooltip.style.top=e.clientY+18+'px'; });
+let mouseDownPos=null;
+renderer.domElement.addEventListener('mousedown', e=>{ mouseDownPos={x:e.clientX, y:e.clientY}; });
+let isFocused=false; let focusTarget=new THREE.Vector3(); let cameraStart=new THREE.Vector3(); let controlsTargetStart=new THREE.Vector3(); let focusProgress=0; let animating=false;
+function focusCameraTo(pos){
+  isFocused=true; animating=true; focusProgress=0;
+  cameraStart.copy(camera.position); controlsTargetStart.copy(controls.target);
+  focusTarget.copy(pos).multiplyScalar(1.35);
+  controls.autoRotate=false;
+  document.getElementById('hud').classList.add('dim');
+  document.getElementById('holoOverlay').classList.add('on');
+  portalRing.position.copy(pos); portalRing2.position.copy(pos); portalGlow.position.copy(pos);
+  portalRing.lookAt(0,0,0); portalRing2.lookAt(0,0,0);
+}
+window.resetCamera=()=>{ isFocused=false; animating=true; focusProgress=0; document.getElementById('hud').classList.remove('dim'); document.getElementById('holoOverlay').classList.remove('on'); portalRing.material.opacity=0; portalRing2.material.opacity=0; portalGlow.material.opacity=0; }
+window.closeHolo=()=>{ document.getElementById('holoCard').classList.remove('on'); document.getElementById('greenModal').classList.remove('on'); document.getElementById('divulgacaoModal').classList.remove('on'); document.getElementById('confiancaModal').classList.remove('on'); document.getElementById('centralModal').classList.remove('on'); resetCamera(); setTimeout(()=>{ controls.autoRotate=true; }, 600); }
+window.copiarMensagem=(texto)=>{ navigator.clipboard.writeText(texto).then(()=>{ const toast=document.getElementById('toast'); toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3000); }); }
+window.ativarSites=(e)=>{ e.stopPropagation(); copiarMensagem("quero ter meu perfil ativado no sites mind"); window.open("https://ig.me/m/sitesmind", "_blank"); }
+window.verPacotes=(e)=>{ e.stopPropagation(); window.location.href="pacotes.html"; }
+window.impulsionarInsta=(e)=>{ e.stopPropagation(); copiarMensagem("Mind olhe meu perfil e me ajude"); window.open("https://ig.me/m/sitesmind", "_blank"); }
+window.switchCentralTab=(tabName, btn)=>{
+  document.querySelectorAll('.tabCentral').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.centralFeed').forEach(f=>f.classList.remove('on'));
+  document.getElementById('feed-'+tabName).classList.add('on');
+}
+function typeWriterHTML(el, html, speed=18, cb){ el.innerHTML=''; let i=0; const temp=document.createElement('div'); temp.innerHTML=html; const fullText=temp.textContent||temp.innerText||''; el.classList.add('cursorBlink'); (function t(){ if(i<=fullText.length){ const slice=fullText.slice(0,i); if(html.includes('<br>')||html.includes('<span>')){ el.innerHTML=slice + '<span style="opacity:0.6">▌</span>'; if(i>fullText.length-10) el.innerHTML=html; }else{ el.textContent=slice; } i++; setTimeout(t,speed); }else{ el.classList.remove('cursorBlink'); el.innerHTML=html; if(cb) cb(); } })(); }
+function typeWriterText(el, text, speed=16, cb){ el.textContent=''; let i=0; el.classList.add('cursorBlink'); (function t(){ if(i<=text.length){ el.textContent=text.slice(0,i); i++; setTimeout(t,speed); }else{ el.classList.remove('cursorBlink'); if(cb) cb(); } })(); }
+function openHolo(data, worldPos){
+  const info=data.info;
+  if(data.tipo==='vendas'){ document.getElementById('greenModal').classList.add('on'); document.getElementById('opt1').classList.remove('on'); document.getElementById('opt2').classList.remove('on'); document.getElementById('opt3').classList.remove('on'); typeWriterText(document.getElementById('greenSub'), 'Escolha seu mundo de criação... sistema carregando...', 14, ()=>{ typeWriterText(document.getElementById('leg1'), 'Identidade visual que vende', 12, ()=>{ document.getElementById('opt1').classList.add('on'); setTimeout(()=>{ typeWriterText(document.getElementById('leg2'), 'Seu negócio na palma da mão', 12, ()=>{ document.getElementById('opt2').classList.add('on'); setTimeout(()=>{ typeWriterText(document.getElementById('leg3'), 'Presença que vende 24h no Google', 12, ()=>{ document.getElementById('opt3').classList.add('on'); }); },250); }); },350); }); }); return; }
+  if(data.tipo==='divulgacao'){ document.getElementById('divulgacaoModal').classList.add('on'); typeWriterText(document.getElementById('divSub'), 'Bem-vindo à Ilha de Divulgação v2.0. Protocolo impressionante ativado. Sua empresa deixa de ser invisível e começa a dominar o radar.', 12); return; }
+  if(data.tipo==='confianca'){ document.getElementById('confiancaModal').classList.add('on'); typeWriterText(document.getElementById('confSub'), 'MIND não é promessa vazia. É sistema real de Sapiranga-RS. CNPJ ativo, 127 lojistas atendidos, 2 anos de rua.', 13); return; }
+  if(data.tipo==='central'){ document.getElementById('centralModal').classList.add('on'); typeWriterText(document.getElementById('centralSub'), 'Hub principal do lojista. Tudo que importa em um só lugar: ferramentas que já funcionam, novidades do sistema, serviços disponíveis e oportunidades de destaque. Sem enrolação, só o que gera venda.', 10); return; }
+  document.getElementById('holoCard').classList.add('on'); document.getElementById('hTag').innerText=`● ${data.nome} • PORTAL ATIVO`; document.getElementById('hCoords').innerText=`LAT ${data.lat}° LON ${data.lon}° • SCANNING`; document.getElementById('hTitle').innerHTML=''; document.getElementById('hDesc').innerText=''; document.getElementById('hStats').innerHTML=''; document.getElementById('hBtn').innerText='CARREGANDO...'; typeWriterHTML(document.getElementById('hTitle'), info.title, 28, ()=>{ typeWriterText(document.getElementById('hDesc'), info.desc, 10, ()=>{ const statsDiv=document.getElementById('hStats'); statsDiv.innerHTML=''; let idx=0; function nextStat(){ if(idx>=info.stats.length){ document.getElementById('hBtn').innerText=info.btn+' →'; document.getElementById('hBtn').onclick=()=>{ window.location.href=data.page; }; return; } const s=info.stats[idx]; const div=document.createElement('div'); div.className='stat'; div.style.opacity='0'; div.style.transform='translateY(10px)'; div.innerHTML=`<b></b><i></i>`; statsDiv.appendChild(div); setTimeout(()=>{ div.style.transition='0.4s'; div.style.opacity='1'; div.style.transform='translateY(0)'; typeWriterText(div.querySelector('b'), s.k, 18); setTimeout(()=>{ typeWriterText(div.querySelector('i'), s.v, 14); }, 180); idx++; setTimeout(nextStat, 380); }, 50); } nextStat(); }); }); 
+}
+renderer.domElement.addEventListener('mouseup', e=>{ if(!mouseDownPos) return; const dist=Math.hypot(e.clientX-mouseDownPos.x, e.clientY-mouseDownPos.y); if(dist>9) return; const m=new THREE.Vector2((e.clientX/innerWidth)*2-1, -(e.clientY/innerHeight)*2+1); ray.setFromCamera(m, camera); const hits=ray.intersectObjects(markers); if(hits.length){ const d=hits[0].object.userData; const worldPos=hits[0].object.position.clone(); focusCameraTo(worldPos); setTimeout(()=>{ openHolo(d, worldPos); }, 620); } });
+function addTilt(el){ el.addEventListener('mousemove', (e)=>{ const r=el.getBoundingClientRect(); const cx=r.left+r.width/2; const cy=r.top+r.height/2; const dx=(e.clientX-cx)/r.width; const dy=(e.clientY-cy)/r.height; el.style.transform=`rotateY(${dx*8}deg) rotateX(${-dy*8}deg) translateZ(10px)`; }); el.addEventListener('mouseleave', ()=>{ el.style.transform='rotateY(0) rotateX(0) translateZ(0)'; }); }
+addTilt(document.getElementById('holoBox')); addTilt(document.getElementById('greenBox')); addTilt(document.getElementById('divBox')); addTilt(document.getElementById('confiancaBox')); addTilt(document.getElementById('centralBox'));
+let t=0; function heartPulse(time){ const beat=time%1.1; let s=0; if(beat<0.12) s=Math.sin(beat*26.1)*0.05; else if(beat<0.26) s=Math.sin((beat-0.12)*26.1)*0.035; return s; }
+function animate(){ requestAnimationFrame(animate); t+=0.016; const pulse=heartPulse(t); planetGroup.scale.set(1+pulse,1+pulse,1+pulse); coreGlow.material.opacity=pulse*3.2; document.getElementById('bpm').innerText=pulse>0.025?'72 BPM • PULSANDO AZUL':'72 BPM • BLUE CORE'; if(animating){ focusProgress+=0.022; const eased=1-Math.pow(1-focusProgress,3); if(isFocused){ camera.position.lerpVectors(cameraStart, focusTarget, eased); controls.target.lerpVectors(controlsTargetStart, focusTarget.clone().multiplyScalar(0.6), eased); portalRing.material.opacity=eased*0.9; portalRing2.material.opacity=eased*0.5; portalGlow.material.opacity=eased*0.35; portalRing.scale.set(1+eased*0.5,1+eased*0.5,1); portalRing2.scale.set(1+eased*0.8,1+eased*0.8,1); portalRing.rotation.z+=0.02; portalRing2.rotation.z-=0.015; }else{ const backPos=new THREE.Vector3(0,0.6,7.0); camera.position.lerpVectors(cameraStart, backPos, eased); controls.target.lerpVectors(controlsTargetStart, new THREE.Vector3(0,0,0), eased); if(focusProgress>=1) animating=false; } if(focusProgress>=1) animating=false; } earth.rotation.y+=isFocused?0.00008:0.0005; clouds.rotation.y+=isFocused?0.0001:0.00068; blueNeon1.rotation.y+=0.0006; blueNeon2.rotation.y-=0.0004; grid.rotation.y+=0.0003; orbitsGroup.children.forEach(o=>{ o.rotation.y+=0.00032; if(o.userData.sat){ const a=t*o.userData.speed*120; o.userData.sat.position.set(Math.cos(a)*o.userData.radius, Math.sin(a*0.2)*0.08, Math.sin(a)*o.userData.radius); } }); stars.rotation.y+=0.00004; dust.rotation.y-=0.0008; const rotY=THREE.MathUtils.radToDeg(earth.rotation.y); markers.forEach(m=>{ const d=m.userData; if(d.lat!==undefined){ const newPos=latLon(d.lat, d.lon+rotY, 2.10); m.position.copy(newPos); if(!d.isDot) m.lookAt(0,0,0); if(m.userData.light) m.userData.light.position.copy(newPos); } }); raioxHitbox.position.copy(latLon(5, 20+rotY, 2.18)); concHitbox.position.copy(latLon(51, 10+rotY, 2.18)); divulgacaoHitbox.position.copy(latLon(-35, 25+rotY, 2.18)); confiancaHitbox.position.copy(latLon(-15, -55+rotY, 2.18)); centralHitbox.position.copy(latLon(80, 0+rotY, 2.18)); vitrineHitbox.position.copy(latLon(38, -95+rotY, 2.18)); ray.setFromCamera(mouse,camera); const hits=ray.intersectObjects(markers); tooltip.style.display='none'; if(hits.length && !isFocused){ const d=hits[0].object.userData; if(d.nome){ tooltip.innerHTML=`<span style="color:#${d.color.toString(16).padStart(6,'0')}">●</span> ${d.nome}<br><span style="color:#94a3b8; font-weight:400; font-size:0.72rem">${d.desc} • CLIQUE PARA PORTAL</span>`; tooltip.style.display='block'; } } controls.update(); composer.render(); }
+animate();
+addEventListener('resize', ()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeHolo(); });
+</script>
+</body>
+</html>
+

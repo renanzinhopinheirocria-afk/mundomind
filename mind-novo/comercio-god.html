@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIND - Seu mundo de soluções</title>
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#02020a; overflow:hidden; font-family: Inter, sans-serif; height:100vh; }
+  
+  /* TELA 1 - CARD QUE TU JÁ TEM (igual da foto) */
+  #tela1 {
+    position: absolute; inset:0; z-index:10;
+    display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(circle at 30% 20%, #0a0a2a 0%, #02020a 70%);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  #tela1.escondida { opacity:0; transform: scale(1.2); pointer-events:none; }
+  .card {
+    width: 420px; max-width:90vw; padding: 40px 30px;
+    background: rgba(20,20,35,0.7); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
+    text-align:center; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .card img { width:90px; border-radius:18px; margin-bottom:15px; box-shadow: 0 0 30px #a855f7; }
+  .card h1 { color:white; font-size: 3rem; font-style: italic; font-weight:800; letter-spacing:-2px; }
+  .card p { color:#9ca3af; font-size:0.9rem; margin: 12px 0 20px; line-height:1.4; }
+  .tags { display:flex; gap:8px; justify-content:center; margin-bottom:18px; }
+  .tags span { background:#ffffff10; padding:6px 12px; border-radius:20px; color:#d1d5db; font-size:0.75rem; }
+  .btn-principal {
+    width:100%; padding:14px; border-radius:30px; border:none;
+    background:white; color:black; font-weight:600; cursor:pointer;
+    box-shadow: 0 0 20px rgba(255,255,255,0.3); transition: 0.2s;
+  }
+  .btn-principal:hover { transform: scale(1.03); box-shadow: 0 0 30px white; }
+  .btns-sec { display:flex; gap:10px; margin-top:12px; }
+  .btns-sec button { flex:1; padding:10px; border-radius:20px; background:#ffffff12; border:1px solid #ffffff15; color:white; cursor:pointer; }
+
+  /* TELA 2 - PLANETA 3D (escondido até clicar) */
+  #tela2 { position:absolute; inset:0; z-index:1; opacity:0; pointer-events:none; transition: opacity 1s ease; }
+  #tela2.ativa { opacity:1; pointer-events:all; }
+  #canvas { display:block; width:100%; height:100%; }
+  .overlay-planeta {
+    position:absolute; bottom:40px; left:50%; transform:translateX(-50%);
+    text-align:center; pointer-events:none; z-index:20;
+  }
+  .overlay-planeta h2 { color:white; font-weight:300; letter-spacing:0.15em; }
+  .overlay-planeta h2 span { color:#fde68a; text-shadow:0 0 20px #fde68a; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+
+<!-- TELA 1 - IGUAL DA TUA FOTO -->
+<div id="tela1">
+  <div class="card">
+    <img src="https://i.imgur.com/8Qm4sQZ.png" alt="Mind">
+    <h1>MIND</h1>
+    <p>Seu mundo de soluções digitais. Criativo,<br>moderno e profissional.</p>
+    <div class="tags"><span>Apps</span><span>Sites</span><span>Imagens</span><span>Logos</span></div>
+    <button class="btn-principal" id="btnEntrar">Entrar no Mundinho</button>
+    <div class="btns-sec"><button>Ver Cases</button><button>Direct</button></div>
+  </div>
+</div>
+
+<!-- TELA 2 - PLANETA 3D -->
+<div id="tela2">
+  <canvas id="canvas"></canvas>
+  <div class="overlay-planeta"><h2>CRIOU-SE UM NOVO MUNDO. É <span>HOJE.</span><br><small style="color:#7dd3fc; letter-spacing:0.3em; font-size:0.7rem;">28.10.26 • ARRASTE PARA GIRAR</small></h2></div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const tela1 = document.getElementById('tela1');
+const tela2 = document.getElementById('tela2');
+const btnEntrar = document.getElementById('btnEntrar');
+let iniciado = false;
+
+btnEntrar.addEventListener('click', () => {
+  tela1.classList.add('escondida');
+  setTimeout(() => {
+    tela2.classList.add('ativa');
+    if(!iniciado) { iniciarPlaneta(); iniciado = true; }
+  }, 500);
+});
+
+function iniciarPlaneta(){
+  const canvas = document.getElementById('canvas');
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x02020a, 0.035);
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 2, 8);
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping=true; controls.dampingFactor=0.05;
+  controls.enablePan=false; controls.minDistance=4; controls.maxDistance=12;
+  controls.autoRotate=true; controls.autoRotateSpeed=0.4;
+
+  scene.add(new THREE.AmbientLight(0x0a1a2a, 0.6));
+  const ciano = new THREE.PointLight(0x22d3ee, 3, 20); ciano.position.set(5,3,5); scene.add(ciano);
+  const gold = new THREE.PointLight(0xfde68a, 1.5, 15); gold.position.set(-5,-2,-3); scene.add(gold);
+
+  const planet = new THREE.Mesh(new THREE.SphereGeometry(2,128,128), new THREE.MeshStandardMaterial({color:0x0a1020, emissive:0x0a1a2a, emissiveIntensity:0.3, roughness:0.8}));
+  scene.add(planet);
+  const atmos = new THREE.Mesh(new THREE.SphereGeometry(2.15,64,64), new THREE.MeshBasicMaterial({color:0x22d3ee, transparent:true, opacity:0.12, side:THREE.BackSide}));
+  scene.add(atmos);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(2.8,0.08,16,200), new THREE.MeshBasicMaterial({color:0x22d3ee, transparent:true, opacity:0.8}));
+  ring.rotation.x = Math.PI/2.5; scene.add(ring);
+
+  const islands=[]; const g = new THREE.DodecahedronGeometry(0.25,1);
+  for(let i=0;i<12;i++){
+    const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({color:0x1e293b, emissive:0x22d3ee, emissiveIntensity:0.15}));
+    const phi = Math.acos(-1 + (2*i)/12); const theta = Math.sqrt(12*Math.PI)*phi; const r=3.2+Math.random()*0.4;
+    m.position.setFromSphericalCoords(r, phi, theta); m.lookAt(0,0,0);
+    m.userData.basePos = m.position.clone(); m.userData.s = 0.5+Math.random(); scene.add(m); islands.push(m);
+  }
+  const pGeo = new THREE.BufferGeometry(); const cnt=1500; const pPos=new Float32Array(cnt*3); for(let i=0;i<cnt*3;i++) pPos[i]=(Math.random()-0.5)*20; pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
+  const points = new THREE.Points(pGeo, new THREE.PointsMaterial({size:0.02, color:0xfde68a, transparent:true, opacity:0.8, blending:THREE.AdditiveBlending})); scene.add(points);
+
+  function anim(){ requestAnimationFrame(anim); const t=Date.now()*0.001; planet.rotation.y+=0.0008; ring.rotation.z+=0.003; points.rotation.y+=0.0003; islands.forEach((isl,i)=>{ isl.position.y = isl.userData.basePos.y + Math.sin(t*isl.userData.s + i)*0.08; isl.rotation.y+=0.005; }); controls.update(); renderer.render(scene,camera); } anim();
+  window.addEventListener('resize', ()=>{ camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
+}
+</script>
+</body>
+</html>

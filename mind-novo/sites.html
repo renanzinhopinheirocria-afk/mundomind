@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#05030d">
+<meta name="description" content="Sites profissionais com design exclusivo, experiência rápida e estrutura preparada para mecanismos de busca. Transforme sua presença digital com a Mind.">
+<title>Sites Profissionais | Mind Digital Universe</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================
+   01. CONFIGURAÇÕES PRINCIPAIS
+========================================= */
+:root {
+  --bg: #05030d;
+  --panel: rgba(15, 9, 34, .82);
+  --purple: #a855f7;
+  --violet: #7c3aed;
+  --cyan: #22d3ee;
+  --blue: #3b82f6;
+  --white: #f8f7ff;
+  --muted: #b8b2d3;
+  --line: rgba(168, 85, 247, .28);
+  --glow: 0 0 35px rgba(168, 85, 247, .20);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  padding: 34px 20px;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Space Grotesk', sans-serif;
+  isolation: isolate;
+}
+
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(168, 85, 247, .45);
+  color: white;
+}
+
+/* =========================================
+   02. UNIVERSO DIGITAL
+========================================= */
+#space {
+  position: fixed;
+  inset: 0;
+  z-index: -5;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 15% 18%,
+      rgba(124, 58, 237, .23), transparent 38%),
+    radial-gradient(ellipse at 88% 65%,
+      rgba(6, 182, 212, .17), transparent 36%),
+    radial-gradient(ellipse at 50% 100%,
+      rgba(91, 33, 182, .18), transparent 45%),
+    #05030d;
+}
+
+#space::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 79px,
+      rgba(168, 85, 247, .035) 80px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 79px,
+      rgba(34, 211, 238, .025) 80px
+    );
+  mask-image: linear-gradient(to bottom, black, transparent 95%);
+}
+
+#space::after {
+  content: "";
+  position: absolute;
+  width: 70vw;
+  height: 70vw;
+  max-width: 850px;
+  max-height: 850px;
+  top: -38%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid rgba(168, 85, 247, .07);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 55px rgba(168, 85, 247, .018),
+    0 0 0 110px rgba(34, 211, 238, .012),
+    inset 0 0 100px rgba(168, 85, 247, .035);
+  animation: orbital 28s linear infinite;
+}
+
+#grid,
+#particles {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+#grid {
+  z-index: -3;
+  opacity: .72;
+}
+
+#particles {
+  z-index: -2;
+  opacity: .85;
+}
+
+/* =========================================
+   03. PAINEL PRINCIPAL
+========================================= */
+.container {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 38px 36px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(168, 85, 247, .35);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg,
+      rgba(25, 13, 53, .94),
+      rgba(8, 6, 22, .96) 52%,
+      rgba(9, 15, 37, .94));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, .025),
+    0 30px 100px rgba(0, 0, 0, .45),
+    0 0 85px rgba(124, 58, 237, .13),
+    inset 0 1px rgba(255, 255, 255, .07);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.container::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -1px;
+  left: -40%;
+  width: 38%;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent, var(--cyan), white, var(--purple), transparent);
+  box-shadow: 0 0 18px var(--cyan);
+  animation: borderTravel 8s linear infinite;
+}
+
+.container::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg,
+      transparent 25%,
+      rgba(168, 85, 247, .025) 48%,
+      transparent 70%);
+  opacity: .9;
+}
+
+.gridBg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .55;
+  background-image:
+    linear-gradient(rgba(168, 85, 247, .055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, .04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, black, transparent 90%);
+}
+
+.corner {
+  position: absolute;
+  width: 27px;
+  height: 27px;
+  border: 2px solid var(--purple);
+  opacity: .8;
+  filter: drop-shadow(0 0 5px var(--purple));
+  pointer-events: none;
+}
+
+.c1 { top: 15px; left: 15px; border-right: 0; border-bottom: 0; }
+.c2 { top: 15px; right: 15px; border-left: 0; border-bottom: 0; }
+.c3 { bottom: 15px; left: 15px; border-right: 0; border-top: 0; }
+.c4 { bottom: 15px; right: 15px; border-left: 0; border-top: 0; }
+
+/* =========================================
+   04. NAVEGAÇÃO
+========================================= */
+.voltar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .4px;
+  text-decoration: none;
+  border: 1px solid rgba(34, 211, 238, .25);
+  border-radius: 8px;
+  background: rgba(34, 211, 238, .045);
+  transition: .3s ease;
+}
+
+.voltar::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+}
+
+.voltar:hover {
+  transform: translateX(-3px);
+  border-color: var(--cyan);
+  background: rgba(34, 211, 238, .1);
+  box-shadow: 0 0 24px rgba(34, 211, 238, .12);
+}
+
+/* =========================================
+   05. HERO / TÍTULO
+========================================= */
+.hero {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin: 60px 0 42px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 22px;
+  padding: 8px 13px;
+  border: 1px solid rgba(168, 85, 247, .28);
+  border-radius: 100px;
+  background: rgba(168, 85, 247, .065);
+  color: #d8b4fe;
+  font: 10px 'JetBrains Mono', monospace;
+  letter-spacing: 2px;
+}
+
+.eyebrow .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 10px #4ade80;
+  animation: pulse 2s infinite;
+}
+
+.hero h1 {
+  max-width: 920px;
+  margin: 0 auto;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(34px, 5.1vw, 61px);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -2.7px;
+  text-wrap: balance;
+  animation: appear .9s both;
+}
+
+.hero h1 span {
+  display: inline-block;
+  position: relative;
+  color: transparent;
+  background: linear-gradient(100deg,
+    #e9d5ff 0%,
+    #c084fc 22%,
+    #a855f7 42%,
+    #67e8f9 73%,
+    #e0f2fe 100%);
+  background-size: 220% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 22px rgba(168, 85, 247, .2));
+  animation: textFlow 8s linear infinite;
+}
+
+.hero p {
+  max-width: 650px;
+  margin: 22px auto 0;
+  color: #c3badc;
+  font-size: 15px;
+  line-height: 1.85;
+  font-weight: 400;
+}
+
+.hero p strong {
+  color: #f1e7ff;
+  font-weight: 600;
+}
+
+/* =========================================
+   06. DETALHE DECORATIVO
+========================================= */
+.energy-line {
+  position: relative;
+  width: 180px;
+  max-width: 40%;
+  height: 2px;
+  margin: 25px auto 0;
+  overflow: hidden;
+  background: rgba(168, 85, 247, .12);
+}
+
+.energy-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent, var(--cyan), white, transparent);
+  box-shadow: 0 0 12px var(--cyan);
+  animation: scanner 3s linear infinite;
+}
+
+/* =========================================
+   07. CARDS HOLOGRÁFICOS
+========================================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+  perspective: 1200px;
+}
+
+.card {
+  --mx: 50%;
+  --my: 50%;
+  position: relative;
+  min-width: 0;
+  padding: 27px 25px 32px;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(168, 85, 247, .32);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg,
+      rgba(28, 16, 57, .93),
+      rgba(12, 8, 30, .96) 65%,
+      rgba(11, 17, 37, .94));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .06),
+    0 12px 28px rgba(0, 0, 0, .19);
+  transform-style: preserve-3d;
+  transition:
+    transform .38s cubic-bezier(.2, .8, .2, 1),
+    border-color .35s ease,
+    box-shadow .35s ease;
+  animation: cardEnter .8s both;
+}
+
+.card:nth-child(1) { animation-delay: .08s; }
+.card:nth-child(2) { animation-delay: .16s; }
+.card:nth-child(3) { animation-delay: .24s; }
+.card:nth-child(4) { animation-delay: .32s; }
+
+.card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: .7;
+  pointer-events: none;
+  background: radial-gradient(
+    250px circle at var(--mx) var(--my),
+    rgba(168, 85, 247, .16),
+    transparent 72%);
+  transition: opacity .3s;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: -110%;
+  width: 65%;
+  height: 100%;
+  pointer-events: none;
+  transform: skewX(-22deg);
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255, 255, 255, .045),
+    rgba(103, 232, 249, .09),
+    transparent);
+}
+
+.card:hover {
+  transform: translateY(-7px) rotateX(2deg);
+  border-color: rgba(103, 232, 249, .7);
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, .32),
+    0 0 28px rgba(168, 85, 247, .15),
+    0 0 18px rgba(34, 211, 238, .07),
+    inset 0 0 24px rgba(168, 85, 247, .055);
+}
+
+.card:hover::after {
+  animation: cardSweep .9s ease;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 23px;
+}
+
+.iconWrap {
+  position: relative;
+  display: flex;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(168, 85, 247, .4);
+  border-radius: 15px;
+  background: linear-gradient(145deg,
+    rgba(168, 85, 247, .17),
+    rgba(34, 211, 238, .055));
+  box-shadow:
+    0 0 22px rgba(168, 85, 247, .09),
+    inset 0 1px rgba(255, 255, 255, .06);
+  font-size: 25px;
+  transition: .4s ease;
+}
+
+.iconWrap::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgba(34, 211, 238, .12);
+  border-radius: 19px;
+  transform: scale(.9);
+  opacity: 0;
+  transition: .4s;
+}
+
+.card:hover .iconWrap {
+  transform: translateY(-2px) scale(1.06);
+  border-color: rgba(34, 211, 238, .6);
+  box-shadow: 0 0 25px rgba(168, 85, 247, .19);
+}
+
+.card:hover .iconWrap::after {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #91e9e0;
+  font: 9px 'JetBrains Mono', monospace;
+  letter-spacing: .7px;
+}
+
+.status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+.card h3 {
+  margin-bottom: 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: 19px;
+  line-height: 1.35;
+  font-weight: 800;
+  letter-spacing: -.45px;
+}
+
+.card p {
+  max-width: 430px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.micro {
+  position: absolute;
+  right: 15px;
+  bottom: 12px;
+  color: rgba(196, 181, 253, .45);
+  font: 8px 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+}
+
+.card-accent {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 65px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan));
+  box-shadow: 0 0 12px var(--cyan);
+  opacity: .55;
+  transition: width .4s;
+}
+
+.card:hover .card-accent {
+  width: 100%;
+}
+
+/* =========================================
+   08. ETAPAS DO PROJETO
+========================================= */
+.section-heading {
+  margin: 58px 0 23px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.section-label {
+  display: block;
+  margin-bottom: 11px;
+  color: var(--cyan);
+  font: 10px 'JetBrains Mono', monospace;
+  letter-spacing: 2.4px;
+}
+
+.section-title {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.3;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: transparent;
+  background: linear-gradient(90deg, #e9d5ff, #c084fc, #67e8f9);
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.section-heading p {
+  margin-top: 10px;
+  color: #9990b8;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.passos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+  position: relative;
+  z-index: 1;
+}
+
+.passo {
+  position: relative;
+  min-width: 0;
+  padding: 21px 12px;
+  overflow: hidden;
+  text-align: center;
+  border: 1px solid rgba(168, 85, 247, .2);
+  border-radius: 14px;
+  background: linear-gradient(145deg,
+    rgba(24, 13, 47, .85),
+    rgba(11, 9, 28, .91));
+  transition: .3s ease;
+}
+
+.passo:hover {
+  transform: translateY(-4px);
+  border-color: rgba(34, 211, 238, .45);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, .2);
+}
+
+.passo-number {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  margin: 0 auto 14px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #9333ea, #2563eb, #06b6d4);
+  box-shadow: 0 0 18px rgba(168, 85, 247, .2);
+  font: 800 14px 'Inter', sans-serif;
+}
+
+.passo h4 {
+  margin-bottom: 8px;
+  font: 700 12px 'Inter', sans-serif;
+}
+
+.passo p {
+  color: #aaa0c8;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+/* =========================================
+   09. CHAMADA PARA AÇÃO
+========================================= */
+.cta {
+  position: relative;
+  z-index: 1;
+  margin: 47px 0 10px;
+  padding: 28px 20px;
+  overflow: hidden;
+  text-align: center;
+  border: 1px solid rgba(168, 85, 247, .24);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 50% 120%,
+      rgba(124, 58, 237, .18), transparent 65%),
+    rgba(12, 8, 29, .65);
+}
+
+.cta::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20%;
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent, var(--purple), var(--cyan), transparent);
+  opacity: .8;
+}
+
+.cta h3 {
+  margin-bottom: 9px;
+  font: 800 clamp(18px, 3vw, 24px) 'Inter', sans-serif;
+  letter-spacing: -.5px;
+}
+
+.cta p {
+  max-width: 490px;
+  margin: 0 auto 22px;
+  color: #aaa0c8;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.cta a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  min-height: 52px;
+  padding: 15px 27px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .24);
+  border-radius: 11px;
+  background: linear-gradient(105deg,
+    #7c3aed, #9333ea 45%, #0891b2);
+  color: white;
+  font: 800 12px 'Inter', sans-serif;
+  letter-spacing: 1px;
+  text-decoration: none;
+  box-shadow:
+    0 8px 28px rgba(124, 58, 237, .26),
+    inset 0 1px rgba(255, 255, 255, .2);
+  transition: transform .3s, box-shadow .3s, filter .3s;
+}
+
+.cta a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  left: -100%;
+  width: 60%;
+  transform: skewX(-20deg);
+  background: linear-gradient(90deg,
+    transparent, rgba(255, 255, 255, .24), transparent);
+}
+
+.cta a:hover {
+  transform: translateY(-3px) scale(1.025);
+  filter: brightness(1.12);
+  box-shadow:
+    0 12px 40px rgba(124, 58, 237, .38),
+    0 0 22px rgba(34, 211, 238, .16);
+}
+
+.cta a:hover::before {
+  animation: buttonSweep .8s ease;
+}
+
+.cta a:focus-visible,
+.voltar:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 5px;
+}
+
+/* =========================================
+   10. RODAPÉ
+========================================= */
+footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(168, 85, 247, .12);
+  color: #82769f;
+  font: 9px/2 'JetBrains Mono', monospace;
+  letter-spacing: .7px;
+  text-align: center;
+}
+
+.footer-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: #a9a0c6;
+}
+
+.footer-status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 9px #4ade80;
+}
+
+/* =========================================
+   11. ANIMAÇÕES
+========================================= */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .45; transform: scale(.78); }
+}
+
+@keyframes orbital {
+  from { transform: translateX(-50%) rotate(0deg); }
+  to { transform: translateX(-50%) rotate(360deg); }
+}
+
+@keyframes borderTravel {
+  0% { left: -40%; }
+  100% { left: 110%; }
+}
+
+@keyframes scanner {
+  0% { left: -40%; }
+  100% { left: 110%; }
+}
+
+@keyframes textFlow {
+  0% { background-position: 0% center; }
+  100% { background-position: 220% center; }
+}
+
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardSweep {
+  from { left: -110%; }
+  to { left: 150%; }
+}
+
+@keyframes buttonSweep {
+  from { left: -100%; }
+  to { left: 150%; }
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   12. RESPONSIVIDADE
+========================================= */
+@media (min-width: 1400px) {
+  .container { max-width: 1160px; }
+  .card { padding: 30px; }
+}
+
+@media (max-width: 760px) {
+  body { padding: 17px 12px; }
+
+  .container {
+    padding: 29px 20px;
+    border-radius: 21px;
+  }
+
+  .hero { margin: 43px 0 32px; }
+
+  .hero h1 {
+    font-size: clamp(30px, 7vw, 43px);
+    letter-spacing: -1.6px;
+    line-height: 1.12;
+  }
+
+  .hero p {
+    margin-top: 17px;
+    font-size: 13px;
+  }
+
+  .grid { gap: 13px; }
+
+  .card { padding: 23px 20px 32px; }
+
+  .section-heading { margin-top: 43px; }
+
+  .passos { gap: 10px; }
+
+  .passo { padding: 18px 9px; }
+
+  .cta { margin-top: 35px; }
+}
+
+@media (max-width: 480px) {
+  body { padding: 10px 8px; }
+
+  .container {
+    padding: 25px 15px;
+    border-radius: 17px;
+  }
+
+  .corner { width: 19px; height: 19px; }
+
+  .voltar {
+    padding: 10px 12px;
+    font-size: 10px;
+  }
+
+  .eyebrow {
+    font-size: 8px;
+    letter-spacing: 1.4px;
+  }
+
+  .hero { margin: 38px 0 28px; }
+
+  .hero h1 {
+    font-size: clamp(28px, 8vw, 36px);
+    letter-spacing: -1.4px;
+  }
+
+  .hero p { font-size: 12px; }
+
+  .grid { grid-template-columns: 1fr; }
+
+  .card {
+    padding: 22px 19px 32px;
+    border-radius: 15px;
+  }
+
+  .card h3 { font-size: 17px; }
+
+  .card p { font-size: 12px; }
+
+  .passos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .section-title { font-size: 23px; }
+
+  .cta { padding: 25px 13px; }
+
+  .cta a {
+    width: 100%;
+    max-width: 290px;
+    padding: 15px 12px;
+    font-size: 11px;
+  }
+
+  footer { font-size: 8px; }
+}
+
+/* =========================================
+   13. ACESSIBILIDADE E DESEMPENHO
+========================================= */
+@media (hover: none) {
+  .card:hover,
+  .passo:hover,
+  .cta a:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+
+<body>
+<div id="space" aria-hidden="true"></div>
+<canvas id="grid" aria-hidden="true"></canvas>
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<main class="container">
+  <div class="corner c1"></div>
+  <div class="corner c2"></div>
+  <div class="corner c3"></div>
+  <div class="corner c4"></div>
+  <div class="gridBg"></div>
+
+  <a class="voltar" href="mundinho.html">
+    Voltar ao Mundinho
+  </a>
+
+  <header class="hero">
+    <div class="eyebrow">
+      <span class="dot"></span>
+      MIND DIGITAL UNIVERSE / WEB SYSTEM
+    </div>
+
+    <h1>
+      Sua marca merece<br>
+      <span>dominar o digital.</span>
+    </h1>
+
+    <p>
+      Desenvolvemos <strong>sites profissionais exclusivos</strong>
+      que transformam sua presença digital em uma experiência
+      moderna, fortalecem sua marca e facilitam que seus clientes
+      encontrem seu negócio.
+    </p>
+
+    <div class="energy-line"></div>
+  </header>
+
+  <section class="grid" aria-label="Benefícios dos sites profissionais">
+
+    <article class="card">
+      <div class="card-top">
+        <div class="iconWrap">💎</div>
+        <span class="status">DESIGN SYSTEM</span>
+      </div>
+      <h3>Identidade Visual Exclusiva</h3>
+      <p>
+        Um projeto desenvolvido para refletir a personalidade
+        da sua empresa, destacar sua marca e oferecer uma
+        experiência visual memorável.
+      </p>
+      <div class="micro">DESIGN_PROTOCOL // 001</div>
+      <div class="card-accent"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-top">
+        <div class="iconWrap">⚡</div>
+        <span class="status">PERFORMANCE</span>
+      </div>
+      <h3>Velocidade e Fluidez</h3>
+      <p>
+        Experiência otimizada para celulares e computadores,
+        com navegação intuitiva, carregamento eficiente
+        e foco na experiência do usuário.
+      </p>
+      <div class="micro">PERFORMANCE_CORE // 002</div>
+      <div class="card-accent"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-top">
+        <div class="iconWrap">🌐</div>
+        <span class="status">SEO READY</span>
+      </div>
+      <h3>Presença nas Buscas</h3>
+      <p>
+        Estrutura preparada para mecanismos de busca,
+        com organização de conteúdo e boas práticas
+        que ajudam seu negócio a ser descoberto online.
+      </p>
+      <div class="micro">DISCOVERY_ENGINE // 003</div>
+      <div class="card-accent"></div>
+    </article>
+
+    <article class="card">
+      <div class="card-top">
+        <div class="iconWrap">🛡️</div>
+        <span class="status">PROTECTION</span>
+      </div>
+      <h3>Estrutura Segura e Confiável</h3>
+      <p>
+        Projeto com atenção à segurança, estabilidade,
+        manutenção e configuração da hospedagem,
+        conforme as necessidades do seu negócio.
+      </p>
+      <div class="micro">SECURITY_PROTOCOL // 004</div>
+      <div class="card-accent"></div>
+    </article>
+
+  </section>
+
+  <section aria-labelledby="process-title">
+    <div class="section-heading">
+      <span class="section-label">[ SYSTEM WORKFLOW ]</span>
+      <h2 class="section-title" id="process-title">
+        Do conceito ao lançamento.
+      </h2>
+      <p>
+        Um processo organizado para transformar sua ideia
+        em uma presença digital profissional.
+      </p>
+    </div>
+
+    <div class="passos">
+
+      <article class="passo">
+        <span class="passo-number">01</span>
+        <h4>Estratégia</h4>
+        <p>Entendemos seu negócio, público e objetivos.</p>
+      </article>
+
+      <article class="passo">
+        <span class="passo-number">02</span>
+        <h4>Design</h4>
+        <p>Construímos uma identidade visual alinhada à marca.</p>
+      </article>
+
+      <article class="passo">
+        <span class="passo-number">03</span>
+        <h4>Desenvolvimento</h4>
+        <p>Transformamos o projeto em uma experiência funcional.</p>
+      </article>
+
+      <article class="passo">
+        <span class="passo-number">04</span>
+        <h4>Lançamento</h4>
+        <p>Publicamos o site após os testes e configurações necessários.</p>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="cta" aria-label="Solicitar um site">
+    <h3>Seu próximo nível começa aqui.</h3>
+    <p>
+      Apresente sua empresa ao mundo digital com um projeto
+      pensado para sua marca, seus clientes e seus objetivos.
+    </p>
+    <a href="https://instagram.com/Sitesmind"
+       target="_blank"
+       rel="noopener noreferrer">
+      INICIAR MEU PROJETO <span aria-hidden="true">↗</span>
+    </a>
+  </section>
+
+  <footer>
+    <div class="footer-status">MIND DIGITAL UNIVERSE</div>
+    <div>© 2026 MIND · SITES PROFISSIONAIS · WEB EXPERIENCE</div>
+    <div>INTERFACE MODULE // HOLO_PANEL 3.0</div>
+  </footer>
+</main>
+
+<script>
+/* =========================================
+   14. AMBIENTE ANIMADO
+========================================= */
+(() => {
+  const gridCanvas = document.getElementById('grid');
+  const particleCanvas = document.getElementById('particles');
+
+  const gridCtx = gridCanvas.getContext('2d');
+  const particleCtx = particleCanvas.getContext('2d');
+
+  const reduceMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)'
+  );
+
+  const smallScreen = window.matchMedia('(max-width: 600px)');
+
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let frame = 0;
+  let particles = [];
+  let animationId = null;
+  let lastFrame = 0;
+
+  const colors = [
+    '168,85,247',
+    '34,211,238',
+    '139,92,246'
+  ];
+
+  function resizeCanvas() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+
+    [gridCanvas, particleCanvas].forEach(canvas => {
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+    });
+
+    gridCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    particleCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    createParticles();
+    drawGrid();
+  }
+
+  function createParticles() {
+    const count = smallScreen.matches ? 22 : 55;
+
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.22,
+      vy: (Math.random() - 0.5) * 0.22,
+      radius: Math.random() * 1.3 + 0.4,
+      alpha: Math.random() * 0.5 + 0.2,
+      color: colors[Math.floor(Math.random() * colors.length)]
+    }));
+  }
+
+  function drawGrid() {
+    gridCtx.clearRect(0, 0, width, height);
+
+    const spacing = smallScreen.matches ? 55 : 75;
+    const offset = reduceMotion.matches ? 0 : (frame * 0.12) % spacing;
+
+    gridCtx.lineWidth = 0.7;
+
+    for (let x = -spacing + offset; x < width + spacing; x += spacing) {
+      gridCtx.beginPath();
+      gridCtx.moveTo(x, 0);
+      gridCtx.lineTo(x + height * 0.12, height);
+      gridCtx.strokeStyle = 'rgba(168,85,247,0.09)';
+      gridCtx.stroke();
+    }
+
+    for (let y = -spacing + offset; y < height + spacing; y += spacing) {
+      gridCtx.beginPath();
+      gridCtx.moveTo(0, y);
+      gridCtx.lineTo(width, y + width * 0.025);
+      gridCtx.strokeStyle = 'rgba(34,211,238,0.045)';
+      gridCtx.stroke();
+    }
+  }
+
+  function drawParticles() {
+    particleCtx.clearRect(0, 0, width, height);
+
+    particles.forEach((p, i) => {
+      particleCtx.beginPath();
+      particleCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      particleCtx.fillStyle =
+        `rgba(${p.color},${p.alpha})`;
+      particleCtx.fill();
+
+      if (!reduceMotion.matches) {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+      }
+
+      if (smallScreen.matches) return;
+
+      for (let j = i + 1; j < particles.length; j++) {
+        const q = particles[j];
+        const dx = p.x - q.x;
+        const dy = p.y - q.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 105) {
+          const opacity = (1 - distance / 105) * 0.13;
+
+          particleCtx.beginPath();
+          particleCtx.moveTo(p.x, p.y);
+          particleCtx.lineTo(q.x, q.y);
+          particleCtx.strokeStyle =
+            `rgba(139,92,246,${opacity})`;
+          particleCtx.lineWidth = 0.6;
+          particleCtx.stroke();
+        }
+      }
+    });
+  }
+
+  function animate(timestamp) {
+    animationId = null;
+
+    if (document.hidden) return;
+
+    if (timestamp - lastFrame < 30) {
+      animationId = requestAnimationFrame(animate);
+      return;
+    }
+
+    lastFrame = timestamp;
+    frame++;
+
+    drawGrid();
+    drawParticles();
+
+    animationId = requestAnimationFrame(animate);
+  }
+
+  function startAnimation() {
+    if (animationId !== null || document.hidden) return;
+    animationId = requestAnimationFrame(animate);
+  }
+
+  function stopAnimation() {
+    if (animationId !== null) {
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopAnimation();
+    } else {
+      lastFrame = 0;
+      startAnimation();
+    }
+  });
+
+  window.addEventListener('resize', resizeCanvas, { passive: true });
+
+  if (reduceMotion.addEventListener) {
+    reduceMotion.addEventListener('change', () => {
+      drawGrid();
+      drawParticles();
+    });
+  }
+
+  resizeCanvas();
+  startAnimation();
+
+  /* =========================================
+     15. EFEITO DE LUZ INTERATIVA NOS CARDS
+  ========================================= */
+  const cards = document.querySelectorAll('.card');
+  const canHover = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+  if (canHover.matches && !reduceMotion.matches) {
+    cards.forEach(card => {
+      card.addEventListener('pointermove', event => {
+        const rect = card.getBoundingClientRect();
+
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        card.style.setProperty('--mx', `${x}px`);
+        card.style.setProperty('--my', `${y}px`);
+      });
+
+      card.addEventListener('pointerleave', () => {
+        card.style.setProperty('--mx', '50%');
+        card.style.setProperty('--my', '50%');
+      });
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

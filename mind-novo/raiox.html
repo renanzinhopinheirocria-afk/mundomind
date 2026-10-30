@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAIO-X PROTOCOL • SITESMIND</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#020208;color:#e8e6ff;font-family:'Inter',sans-serif;display:grid;place-items:center;padding:20px;overflow:hidden;position:relative}
+.mono{font-family:'JetBrains Mono',monospace}
+.bg{position:fixed;inset:-40%;z-index:-4;background:
+radial-gradient(40% 40% at 20% 20%, #4c1d95 0%, transparent 60%),
+radial-gradient(35% 35% at 80% 20%, #7c3aed 0%, transparent 60%),
+radial-gradient(45% 45% at 50% 85%, #1e0a4a 0%, transparent 70%),
+radial-gradient(30% 30% at 90% 90%, #3b0a6a 0%, transparent 60%),
+#020208;filter:saturate(1.2);animation:bgShift 18s ease-in-out infinite alternate}
+@keyframes bgShift{0%{transform:translate(0,0) scale(1) rotate(0deg)}100%{transform:translate(-3%, -4%) scale(1.15) rotate(1.5deg)}}
+.grid{position:fixed;inset:0;z-index:-3;background-image:
+linear-gradient(rgba(139,92,246,0.07) 1px, transparent 1px),
+linear-gradient(90deg, rgba(139,92,246,0.07) 1px, transparent 1px);
+background-size:72px 72px;mask-image:radial-gradient(ellipse at 50% 50%, black 30%, transparent 78%);opacity:0.6;animation:gridDrift 30s linear infinite}
+@keyframes gridDrift{from{background-position:0 0}to{background-position:72px 72px}}
+canvas#fx{position:fixed;inset:0;z-index:-2;pointer-events:none}
+.vignette{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.85) 100%)}
+.wrap{width:100%;max-width:580px;position:relative}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.back{color:#6b6b8a;text-decoration:none;font-size:0.62rem;letter-spacing:0.14em;display:flex;gap:8px;align-items:center;border:1px solid rgba(255,255,255,0.06);padding:6px 12px;border-radius:999px;background:rgba(255,255,255,0.02);backdrop-filter:blur(8px);transition:0.2s}
+.back:hover{color:#fff;border-color:rgba(139,92,246,0.4);box-shadow:0 0 20px rgba(139,92,246,0.25)}
+.status{display:flex;align-items:center;gap:8px;color:#a78bfa;font-size:0.58rem;letter-spacing:0.12em;border:1px solid rgba(139,92,246,0.22);background:rgba(139,92,246,0.08);padding:6px 12px;border-radius:999px}
+.dot{width:6px;height:6px;background:#8b5cf6;border-radius:50%;box-shadow:0 0 10px #8b5cf6, 0 0 20px #8b5cf6;animation:pulse 2s infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:0.7}100%{transform:scale(1);opacity:1}}
+.card{position:relative;background:linear-gradient(180deg, rgba(15,10,28,0.85) 0%, rgba(7,5,16,0.92) 100%);border:1px solid rgba(139,92,246,0.18);border-radius:26px;padding:32px 28px;box-shadow:0 0 0 1px rgba(255,255,255,0.04) inset, 0 30px 80px rgba(0,0,0,0.7), 0 0 120px rgba(124,58,237,0.18);backdrop-filter:blur(22px) saturate(1.2)}
+.card::before{content:'';position:absolute;top:0;left:12%;right:12%;height:1px;background:linear-gradient(90deg, transparent, rgba(139,92,246,0.8), rgba(168,85,247,0.5), transparent)}
+.scanline{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg, transparent, #8b5cf6, transparent);opacity:0;animation:scan 6s ease-in-out infinite}
+@keyframes scan{0%{top:0%;opacity:0}10%{opacity:0.8}90%{opacity:0.8}100%{top:100%;opacity:0}}
+h1{font-size:2.35rem;font-weight:900;letter-spacing:-0.03em;line-height:0.95;min-height:92px}
+h1 .line{display:block;overflow:hidden}
+h1 .line span{display:inline-block;transform:translateY(100%);opacity:0;animation:reveal 0.7s cubic-bezier(0.16,1,0.3,1) forwards}
+h1 .line:nth-child(2) span{animation-delay:0.25s}
+@keyframes reveal{to{transform:translateY(0);opacity:1}}
+h1 b{color:#fff;font-weight:900}
+h1 i{font-style:normal;color:#8b5cf6;text-shadow:0 0 30px rgba(139,92,246,0.8)}
+.cursor{display:inline-block;width:2px;height:1.15em;background:#8b5cf6;margin-left:4px;animation:blink 1s step-end infinite;vertical-align:middle;transform:translateY(4px)}
+@keyframes blink{50%{opacity:0}}
+.sub{color:#9a9ab8;font-size:0.86rem;line-height:1.6;margin:14px 0 26px;font-weight:300;opacity:0;animation:fadeIn 0.8s 0.9s forwards}
+@keyframes fadeIn{to{opacity:1}}
+.label{font-size:0.6rem;letter-spacing:0.14em;color:#8a7fbf;margin:18px 0 8px;display:flex;align-items:center;gap:8px}
+.label::before{content:'';width:14px;height:1px;background:linear-gradient(90deg, #8b5cf6, transparent)}
+.inputWrap{position:relative}
+input,select{width:100%;background:rgba(0,0,0,0.38);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px 16px;color:#fff;font-size:0.92rem;outline:none;transition:all 0.25s}
+input::placeholder{color:#4a4a63}
+input:focus,select:focus{border-color:#8b5cf6;background:rgba(0,0,0,0.58);box-shadow:0 0 0 4px rgba(139,92,246,0.15), 0 0 30px rgba(139,92,246,0.15) inset}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{width:100%;margin-top:26px;position:relative;isolation:isolate;border:none;border-radius:14px;padding:16px;background:#0a0614;color:#fff;font-weight:800;font-size:0.9rem;letter-spacing:0.06em;cursor:pointer;overflow:hidden;border:1px solid rgba(139,92,246,0.4);transition:transform 0.15s}
+.btnBg{position:absolute;inset:0;background:linear-gradient(90deg, #4c1d95, #7c3aed, #a855f7);z-index:-1;transition:0.3s}
+.btnShine{position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);transform:skewX(-18deg);transition:0s;z-index:1}
+.btn:hover .btnShine{left:130%;transition:left 0.7s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(124,58,237,0.5)}
+.btn:active{transform:scale(0.98)}
+.btnText{position:relative;z-index:2;display:flex;justify-content:center;align-items:center;gap:10px}
+.result{margin-top:24px;border:1px solid rgba(139,92,246,0.22);border-radius:18px;background:rgba(0,0,0,0.42);padding:20px;display:none;position:relative;overflow:hidden}
+.result.on{display:block;animation:slideUp 0.6s cubic-bezier(0.16,1,0.3,1)}
+@keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+.bar{height:8px;background:rgba(255,255,255,0.06);border-radius:99px;overflow:hidden;margin:12px 0;border:1px solid rgba(255,255,255,0.05)}
+.fill{height:100%;width:0%;background:linear-gradient(90deg, #4c1d95, #8b5cf6, #d8b4fe);box-shadow:0 0 12px #8b5cf6;transition:width 1.2s cubic-bezier(0.16,1,0.3,1)}
+.kpi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0}
+.kpi div{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;text-align:center}
+.kpi b{display:block;font-size:1rem;color:#fff}
+.kpi span{font-size:0.55rem;color:#7a7a9a;letter-spacing:0.08em}
+.type{color:#c4b5fd;font-size:0.84rem;line-height:1.7;min-height:40px}
+.type b{color:#fff}
+.footer{margin-top:20px;text-align:center;color:#3e3e56;font-size:0.52rem;letter-spacing:0.14em;display:flex;justify-content:center;gap:14px}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+<div class="wrap">
+<div class="topbar">
+<a class="back mono" href="mundinho.html">◂ MUNDINHO</a>
+<div class="status mono"><div class="dot"></div> PROTOCOL • ACTIVE • 48</div>
+</div>
+<div class="card">
+<div class="scanline"></div>
+<h1 id="title">
+<span class="line"><span><b>RAIO-X DA</b> <i>SUA</i></span></span>
+<span class="line"><span><b>LOJA NO <i>GOOGLE</i></b><span class="cursor"></span></span></span>
+</h1>
+<p class="sub" id="sub"></p>
+<div class="label mono">IDENTIFICAÇÃO DA UNIDADE</div>
+<div class="inputWrap"><input id="loja" placeholder="Nome da loja / empresa"></div>
+<div class="row">
+<div><div class="label mono">WHATSAPP</div><input id="zap" placeholder="(00) 00000-0000"></div>
+<div><div class="label mono">CIDADE</div><input id="cidade" placeholder="Sua cidade"></div>
+</div>
+<div class="label mono">SEGMENTO</div>
+<select id="nicho"><option value="">Selecione</option><option>Moda / Roupas</option><option>Móveis / Decoração</option><option>Alimentos / Restaurante</option><option>Serviços</option><option>Eletrônicos</option><option>Saúde / Beleza</option></select>
+<div class="label mono">LINK • INSTAGRAM / GOOGLE</div>
+<input id="link" placeholder="https://">
+<button class="btn" id="btnGen"><span class="btnBg"></span><span class="btnShine"></span><span class="btnText mono">▶ EXECUTAR DIAGNÓSTICO</span></button>
+<div id="res" class="result">
+<div class="mono" style="font-size:0.6rem;color:#a78bfa;letter-spacing:0.12em;margin-bottom:12px">> SYSTEM.LOG // SCANNING_</div>
+<div class="bar"><div id="fill" class="fill"></div></div>
+<div class="kpi">
+<div><b id="k1">--</b><span class="mono">VISIBILIDADE</span></div>
+<div><b id="k2">LOW</b><span class="mono">RANK</span></div>
+<div><b id="k3" style="color:#d8b4fe">--</b><span class="mono">POTENCIAL</span></div>
+</div>
+<div class="type" id="typeOut"></div>
+<button class="btn" style="margin-top:18px" onclick="window.open('https://wa.me/5551989283099?text=Protocolo%20RAIO-X%20executado%20•%20Quero%20corrigir','_blank')"><span class="btnBg" style="background:linear-gradient(90deg,#16a34a,#22c55e)"></span><span class="btnText mono">ABRIR PROTOCOLO NO WHATSAPP</span></button>
+</div>
+</div>
+<div class="footer mono"><span>SITESMIND • 48</span><span>NEURAL v2.1</span><span>0x8B5CF6</span></div>
+</div>
+<script>
+const canvas=document.getElementById('fx'), ctx=canvas.getContext('2d'); let W,H, pts=[];
+function rs(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; pts=Array.from({length:70},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.35,vy:(Math.random()-0.5)*0.35,r:Math.random()*1.4+0.2}))} rs(); addEventListener('resize',rs);
+(function loop(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>W) p.vx*=-1; if(p.y<0||p.y>H) p.vy*=-1;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle='rgba(139,92,246,0.75)'; ctx.shadowColor='#8b5cf6'; ctx.shadowBlur=10; ctx.fill(); ctx.shadowBlur=0;
+  });
+  for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+    const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.hypot(dx,dy);
+    if(d<150){ ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y); ctx.strokeStyle=`rgba(139,92,246,${(1-d/150)*0.14})`; ctx.lineWidth=0.5; ctx.stroke(); }
+  }
+  requestAnimationFrame(loop);
+})();
+const subText="Sistema identifica falhas de visibilidade no Google em 30s. Protocolo neural SITESMIND analisa concorrência e entrega correção.";
+let subIdx=0; const subEl=document.getElementById('sub');
+function typeSub(){ if(subIdx<=subText.length){ subEl.textContent=subText.slice(0,subIdx); subIdx++; setTimeout(typeSub,18); } }
+setTimeout(typeSub,800);
+const btn=document.getElementById('btnGen');
+btn.addEventListener('mousemove', e=>{
+  const r=btn.getBoundingClientRect(); const x=e.clientX-r.left-r.width/2; const y=e.clientY-r.top-r.height/2;
+  btn.style.transform=`translate(${x*0.12}px, ${y*0.25}px)`;
+});
+btn.addEventListener('mouseleave',()=>{ btn.style.transform='translate(0,0)' });
+function typeEffect(el, text, speed=14, cb){
+  el.innerHTML=''; let i=0;
+  function step(){ if(i<=text.length){ el.innerHTML=text.slice(0,i).replace(/\n/g,'<br>'); i++; setTimeout(step,speed);} else if(cb) cb(); }
+  step();
+}
+btn.addEventListener('click',()=>{
+  const loja=document.getElementById('loja').value||'esta unidade';
+  const nicho=document.getElementById('nicho').value||'seu segmento';
+  const res=document.getElementById('res'); res.classList.add('on');
+  document.getElementById('fill').style.width='0%';
+  setTimeout(()=>{ document.getElementById('fill').style.width='84%'; },100);
+  document.getElementById('k1').textContent='23%'; document.getElementById('k2').textContent='CRÍTICO'; document.getElementById('k3').textContent='96%';
+  const out=document.getElementById('typeOut');
+  const msg=`<b>FALHA DETECTADA</b> em ${loja}.\nNicho <b>${nicho}</b> sem presença indexada.\n\n<b>CAUSA:</b> Ausência de site otimizado + Google Meu Negócio.\nConcorrentes com estrutura roxa/preta convertendo.\n\n<b>CORREÇÃO SITESMIND:</b> Deploy de site neural 1s load + botão Zap magnético + SEO local protocol.\n\n<span class='mono' style='color:#8b5cf6'>STATUS: 23% → 96% após correção</span>`;
+  typeEffect(out, msg, 12);
+  res.scrollIntoView({behavior:'smooth'});
+});
+</script>
+</body>
+</html>

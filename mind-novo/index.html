@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIND - Seu Mundo de Negócios</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000; min-height:100vh; font-family:Inter,sans-serif; overflow:hidden}
+#canvas{position:fixed; inset:0; z-index:1}
+.cardWrap{position:relative; z-index:10; min-height:100vh; display:grid; place-items:center; padding:20px; perspective:1200px}
+.card{width:380px; max-width:100%; position:relative; background:linear-gradient(180deg, rgba(22,22,26,0.92), rgba(10,10,12,0.98)); border:1px solid rgba(124,92,255,0.18); border-left:2px solid #7c5cff; border-radius:24px; padding:30px 26px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 0 80px rgba(124,92,255,0.25), inset 0 1px 0 rgba(255,255,255,0.06); opacity:0; transform:translateY(30px) scale(0.92) rotateX(10deg); transition:1s cubic-bezier(.16,1,.3,1); transform-style:preserve-3d; will-change:transform; overflow:hidden}
+.card.on{opacity:1; transform:translateY(0) scale(1) rotateX(0)}
+.card .gridBg{position:absolute; inset:0; background:linear-gradient(rgba(124,92,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(124,92,255,0.04) 1px, transparent 1px); background-size:20px 20px; pointer-events:none; opacity:0.6}
+.card .scanLine{position:absolute; left:0; width:100%; height:2px; background:linear-gradient(90deg, transparent, #7c5cff, transparent); box-shadow:0 0 15px #7c5cff; opacity:0.7; animation:scanMove 3.5s linear infinite; pointer-events:none}
+@keyframes scanMove{0%{top:-2px} 100%{top:100%}}
+.logo{position:relative; z-index:2; width:72px; height:72px; margin:0 auto 14px; background:linear-gradient(180deg,#7c5cff,#a78bfa); border-radius:20px; display:grid; place-items:center; box-shadow:0 0 30px #7c5cff88; overflow:hidden; animation:logoPulse 2.5s infinite}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 30px #7c5cff88} 50%{box-shadow:0 0 50px #7c5cffaa}}
+.logo img{width:100%; height:100%; object-fit:cover}
+h1{position:relative; z-index:2; color:#fff; font-size:1.7rem; font-weight:900; letter-spacing:3px; text-shadow:0 0 20px #7c5cff55}
+.sub{position:relative; z-index:2; color:#8b8b9b; font-size:0.82rem; margin:8px 0 20px; line-height:1.4}
+.tags{position:relative; z-index:2; display:flex; gap:6px; justify-content:center; margin-bottom:18px; flex-wrap:wrap}
+.tags span{background:rgba(124,92,255,0.08); border:1px solid rgba(124,92,255,0.18); color:#a78bfa; font-family:'JetBrains Mono',monospace; font-size:0.58rem; padding:5px 9px; border-radius:99px; letter-spacing:0.5px; transition:0.2s}
+.tags span:hover{background:rgba(124,92,255,0.15); border-color:#7c5cff; color:#fff; box-shadow:0 0 10px #7c5cff55}
+.btn{position:relative; z-index:2; display:block; width:100%; padding:14px; border-radius:14px; border:none; font-weight:800; cursor:pointer; text-decoration:none; transition:0.25s cubic-bezier(.16,1,.3,1)}
+.btnMain{background:linear-gradient(180deg,#fff,#e8e8ef); color:#000; margin-bottom:10px; box-shadow:0 0 25px rgba(255,255,255,0.18), inset 0 1px 0 #fff}
+.btnMain:hover{transform:translateY(-2px) scale(1.02); box-shadow:0 0 35px rgba(255,255,255,0.3)}
+.btnRow{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.btnGhost{background:rgba(255,255,255,0.05); color:#aaa; border:1px solid rgba(255,255,255,0.08)}
+.btnGhost:hover{background:rgba(255,255,255,0.09); color:#fff; border-color:rgba(124,92,255,0.3)}
+.foot{position:relative; z-index:2; margin-top:18px; color:#444; font-size:0.55rem; letter-spacing:1px; font-family:'JetBrains Mono',monospace}
+#intro{position:fixed; inset:0; z-index:100; background:#000; display:grid; place-items:center; transition:opacity 0.8s ease}
+#intro.off{opacity:0; pointer-events:none}
+.introBox{text-align:center; max-width:520px; padding:20px}
+.introTag{color:#7c5cff; font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:2px; margin-bottom:18px; opacity:0.8}
+.introTag b{color:#fff; background:#7c5cff33; border:1px solid #7c5cff55; padding:3px 8px; border-radius:99px}
+#typeText{color:#e8e8ef; font-family:'JetBrains Mono',monospace; font-size:1.15rem; line-height:1.6; min-height:90px; text-align:left; border-left:2px solid #7c5cff44; padding-left:16px}
+#typeText span{color:#7c5cff; text-shadow:0 0 12px #7c5cff}
+.cursor::after{content:'▌'; color:#7c5cff; animation:blink 0.8s infinite; margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+.skip{margin-top:26px; color:#444; font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:1px; cursor:pointer; background:none; border:1px solid #222; padding:6px 14px; border-radius:99px; transition:0.2s}
+.skip:hover{color:#888; border-color:#444}
+@media (max-width:480px){
+  body{ overflow-x:hidden; overflow-y:auto; }
+  .cardWrap{ min-height:100dvh; min-height:100vh; padding:16px; perspective:none; }
+  .card{ width:100%; max-width:calc(100vw - 32px); padding:24px 18px; }
+  .card.on{ transform:none !important; }
+}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div id="intro">
+  <div class="introBox">
+    <div class="introTag"><b>● SYSTEM.MIND</b> INITIALIZING PROTOCOL...</div>
+    <div id="typeText" class="cursor"></div>
+    <button class="skip" onclick="skipIntro()">PULAR [ESPAÇO]</button>
+  </div>
+</div>
+<div class="cardWrap">
+  <div class="card" id="card">
+    <div class="gridBg"></div><div class="scanLine"></div>
+    <div class="logo"><img src="mind.jpg" onerror="this.parentNode.innerHTML='M'"></div>
+    <h1>MIND</h1>
+    <div class="sub">Seu mundo de negócios digitais.<br>Criativo, moderno e profissional.</div>
+    <div class="tags">
+      <span>ILHA 1 • CRIAÇÃO</span>
+      <span>ILHA 2 • CONCORRÊNCIA</span>
+      <span>ILHA 3 • RAIO-X</span>
+      <span>ILHA 4 • VENDAS</span>
+    </div>
+    <a href="mundinho.html?v=52" class="btn btnMain">ENTRAR NO MUNDINHO →</a>
+    <div class="btnRow">
+      <a href="pacotes.html" class="btn btnGhost">Pacotes</a>
+      <a href="sites.html" class="btn btnGhost">Sites</a>
+    </div>
+    <div class="foot">MIND • SAPIRANGA RS • ONLINE • BUILD 52 • TECH</div>
+  </div>
+</div>
+<script>
+let audioCtx;
+function getAudio(){ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); return audioCtx; }
+function playTypeSound(){
+  try{
+    const ctx=getAudio();
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    const f=ctx.createBiquadFilter();
+    o.type='square';
+    o.frequency.value=900+Math.random()*600;
+    f.type='bandpass'; f.frequency.value=1200;
+    g.gain.value=0.025;
+    o.connect(f); f.connect(g); g.connect(ctx.destination);
+    o.start();
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.07);
+    o.stop(ctx.currentTime+0.07);
+  }catch(e){}
+}
+const fullMsg = "Olá... seja bem vindo ao meu novo site com o intuito de revolucionar o <span>comércio</span>.";
+const typeEl = document.getElementById('typeText');
+let i = 0; let typing = true;
+function typeWriter(){
+  if(i <= fullMsg.replace(/<[^>]*>/g,'').length){
+    let visible = ""; let plainCount = 0; let tagOpen = false;
+    for(let c=0;c<fullMsg.length;c++){
+      if(fullMsg[c]=='<'){ tagOpen=true; }
+      if(!tagOpen){ plainCount++; }
+      if(fullMsg[c]=='>'){ tagOpen=false; }
+      if(plainCount>i) break;
+      visible+=fullMsg[c];
+    }
+    typeEl.innerHTML = visible;
+    if(i%1===0 && plainCount>0) playTypeSound();
+    i++;
+    setTimeout(typeWriter, 38);
+  } else {
+    typeEl.innerHTML = fullMsg;
+    typing = false;
+    setTimeout(showCard, 900);
+  }
+}
+typeWriter();
+function showCard(){ document.getElementById('intro').classList.add('off'); setTimeout(()=>{ document.getElementById('card').classList.add('on'); }, 400); }
+function skipIntro(){ if(typing){ i=999; return; } showCard(); }
+document.addEventListener('keydown', e=>{ if(e.code==='Space') skipIntro(); });
+document.addEventListener('click', ()=>{ getAudio(); }, {once:true});
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+let W,H,particles=[],mouse={x:null,y:null};
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight}
+addEventListener('resize',resize);resize();
+addEventListener('mousemove',e=>{
+  mouse.x=e.clientX;mouse.y=e.clientY;
+  const card=document.getElementById('card');
+  if(!card.classList.contains('on')) return;
+  const cx=innerWidth/2, cy=innerHeight/2;
+  const dx=(e.clientX-cx)/cx, dy=(e.clientY-cy)/cy;
+  card.style.transform=`rotateY(${dx*10}deg) rotateX(${-dy*8}deg) translateZ(20px) translateX(${dx*8}px) translateY(${dy*8}px)`;
+});
+addEventListener('mouseleave',()=>{ const card=document.getElementById('card'); card.style.transform=`rotateY(0) rotateX(0) translateZ(0)`; });
+class Particle{
+constructor(){ this.x=Math.random()*W;this.y=Math.random()*H; this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5; this.r=Math.random()*1.5+0.3;this.baseR=this.r;this.alpha=Math.random()*0.5+0.2; }
+update(){
+this.x+=this.vx;this.y+=this.vy;
+if(this.x<0||this.x>W)this.vx*=-1; if(this.y<0||this.y>H)this.vy*=-1;
+if(mouse.x!==null){ let dx=mouse.x-this.x, dy=mouse.y-this.y; let dist=Math.sqrt(dx*dx+dy*dy); if(dist<140){ let f=(140-dist)/140;let a=Math.atan2(dy,dx); this.vx-=Math.cos(a)*f*0.02;this.vy-=Math.sin(a)*f*0.02; this.r=this.baseR+f*2.5;this.alpha=0.8; }else{this.r+=(this.baseR-this.r)*0.08;this.alpha+=(0.3-this.alpha)*0.05;} }
+this.vx*=0.998;this.vy*=0.998;
+}
+draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,7);ctx.fillStyle=`rgba(255,255,255,${this.alpha})`;ctx.fill();}
+}
+for(let i=0;i<120;i++)particles.push(new Particle());
+function connect(){
+for(let i=0;i<particles.length;i++){
+for(let j=i+1;j<particles.length;j++){ let dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y; let d=Math.sqrt(dx*dx+dy*dy); if(d<115){ ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y); ctx.strokeStyle=`rgba(168,85,247,${(1-d/115)*0.12})`;ctx.stroke(); } }
+if(mouse.x!==null){ let dxM=particles[i].x-mouse.x, dyM=particles[i].y-mouse.y; let dM=Math.sqrt(dxM*dxM+dyM*dyM); if(dM<180){ ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(mouse.x,mouse.y); ctx.strokeStyle=`rgba(255,255,255,${(1-dM/180)*0.08})`;ctx.stroke(); } }
+}
+}
+(function animate(){ ctx.clearRect(0,0,W,H); particles.forEach(p=>{p.update();p.draw();}); connect(); requestAnimationFrame(animate); })();
+</script>
+</body>
+</html>

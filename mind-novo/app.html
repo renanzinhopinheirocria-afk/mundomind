@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App para Lojas - Mind TECH</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#02020a; color:white; min-height:100vh; padding:20px; font-family:'JetBrains Mono',monospace; position:relative; overflow-x:hidden; }
+  #stars{position:fixed;inset:0;z-index:-3;background:radial-gradient(ellipse at center, #1a0a3a 0%, #02020a 70%)}
+  #grid{position:fixed;inset:0;z-index:-2;opacity:0.18}
+  #particles{position:fixed;inset:0;z-index:-1}
+  .container { max-width:1100px; margin:0 auto; background:linear-gradient(180deg, rgba(18,8,40,0.92), rgba(8,4,20,0.95)); border:1px solid rgba(168,85,247,0.35); border-radius:24px; padding:32px; box-shadow:0 0 80px rgba(168,85,247,0.15), inset 0 1px 0 rgba(255,255,255,0.06); position:relative; overflow:hidden; backdrop-filter:blur(20px); z-index:2; }
+  .container::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,#a855f7,#06b6d4,transparent);box-shadow:0 0 20px #a855f7;animation:scan 3s linear infinite}
+  @keyframes scan{0%{top:0}100%{top:100%}}
+  .gridBg{position:absolute;inset:0;background:linear-gradient(rgba(168,85,247,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.04) 1px, transparent 1px);background-size:26px 26px;pointer-events:none;opacity:0.5}
+  .corner{position:absolute;width:24px;height:24px;border:2px solid #a855f7;box-shadow:0 0 12px #a855f7;opacity:0.5;z-index:3}
+  .c1{top:12px;left:12px;border-right:0;border-bottom:0} .c2{top:12px;right:12px;border-left:0;border-bottom:0} .c3{bottom:12px;left:12px;border-right:0;border-top:0} .c4{bottom:12px;right:12px;border-left:0;border-top:0}
+  .voltar { display:inline-flex; color:#06b6d4; text-decoration:none; font-weight:700; font-size:11px; letter-spacing:1.5px; border:1px solid rgba(6,182,212,0.25); padding:8px 14px; border-radius:100px; background:rgba(6,182,212,0.08); transition:0.3s; position:relative; z-index:2; }
+  .voltar:hover{background:rgba(6,182,212,0.15);box-shadow:0 0 15px rgba(6,182,212,0.3);transform:translateX(-2px)}
+  .hero { text-align:center; margin:24px 0 42px 0; position:relative; z-index:2; }
+  .hero h1 { font-family:Inter; font-size:44px; font-weight:900; text-shadow:0 0 25px #a855f7; letter-spacing:-1.5px; line-height:0.9; }
+  .hero h1 span{background:linear-gradient(90deg,#a855f7,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 15px rgba(168,85,247,0.5))}
+  .typewriter{font-size:11px;color:#8fa0c0;max-width:720px;margin:14px auto 0;min-height:38px;line-height:1.6}
+  .typewriter::after{content:'_';color:#06b6d4;animation:blink 1s infinite}
+  @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; position:relative; z-index:2; }
+  .card { background:linear-gradient(180deg, rgba(18,8,38,0.9), rgba(8,4,20,0.85)); border:1.5px solid rgba(168,85,247,0.35); border-radius:18px; padding:26px; transition:0.45s cubic-bezier(.16,1,.3,1); position:relative; overflow:hidden; transform-style:preserve-3d; }
+  .card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(168,85,247,0.15),transparent);transition:0.6s}
+  .card:hover::before{left:100%}
+  .card:hover { transform:translateY(-8px) rotateX(4deg) rotateY(-2deg); box-shadow:0 20px 50px rgba(168,85,247,0.25), 0 0 30px rgba(6,182,212,0.15); border-color:#06b6d4; }
+  .icone { margin-bottom:12px; filter: drop-shadow(0 0 12px #06b6d4); width:42px; height:42px; border-radius:12px; background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.2); display:flex; align-items:center; justify-content:center; }
+  .card h3 { font-family:Space Grotesk; font-size:20px; margin-bottom:8px; }
+  .card p { color:#c4b5fd; font-size:12px; line-height:1.6; font-family:'JetBrains Mono'; }
+  .section-title { font-family:Inter; font-size:28px; font-weight:900; margin:50px 0 24px 0; text-align:center; background:linear-gradient(90deg, #a855f7, #06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; position:relative; z-index:2; letter-spacing:-0.5px; }
+  .passos { display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; position:relative; z-index:2; }
+  .passo { background:linear-gradient(180deg, rgba(18,8,38,0.85), rgba(8,4,20,0.8)); border:1px solid rgba(6,182,212,0.25); border-radius:16px; padding:22px 18px; text-align:center; transition:0.4s; position:relative; overflow:hidden; }
+  .passo:hover{transform:translateY(-5px);border-color:#06b6d4;box-shadow:0 15px 35px rgba(6,182,212,0.15)}
+  .passo span { display:flex; width:38px; height:38px; margin:0 auto 12px auto; border-radius:50%; background:linear-gradient(135deg, #a855f7, #06b6d4); font-weight:900; align-items:center; justify-content:center; font-family:Inter; box-shadow:0 0 15px rgba(168,85,247,0.5); }
+  .passo h4 { font-size:13px; margin-bottom:6px; font-family:Space Grotesk; }
+  .passo p { color:#c4b5fd; font-size:11px; line-height:1.4; font-family:'JetBrains Mono'; }
+  .cta { text-align:center; margin:50px 0 10px 0; position:relative; z-index:2; }
+  .cta a { display:inline-flex; background:linear-gradient(90deg, #a855f7, #06b6d4); color:white; padding:18px 44px; border-radius:14px; text-decoration:none; font-weight:900; font-size:13px; letter-spacing:1.5px; box-shadow:0 0 30px rgba(168,85,247,0.4); transition:0.35s; position:relative; overflow:hidden; }
+  .cta a::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);animation:btnShine 2.2s infinite}
+  @keyframes btnShine{0%{left:-100%}100%{left:100%}}
+  .cta a:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 0 50px rgba(168,85,247,0.6)}
+  footer { text-align:center; margin-top:32px; color:#6a5a8a; font-size:10px; letter-spacing:1px; position:relative; z-index:2; }
+  @media(max-width:700px){ .grid{grid-template-columns:1fr;} .passos{grid-template-columns:1fr 1fr;} .hero h1{font-size:28px;} }
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<canvas id="grid"></canvas>
+<canvas id="particles"></canvas>
+
+<div class="container">
+  <div class="corner c1"></div><div class="corner c2"></div><div class="corner c3"></div><div class="corner c4"></div>
+  <div class="gridBg"></div>
+  <a class="voltar" href="mundinho.html">← VOLTAR AO MUNDINHO</a>
+  
+  <div class="hero">
+    <h1>Aplicativo para <span>sua Loja</span></h1>
+    <div class="typewriter mono" id="typewriter"></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+      <h3>Design Exclusivo</h3>
+      <p>App com a identidade da sua loja, cores e logo. Nada de layout genérico. Protocolo de marca própria.</p>
+    </div>
+    <div class="card">
+      <div class="icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
+      <h3>Super Rápido</h3>
+      <p>Carregamento instantâneo e experiência leve, mesmo com internet fraca. Otimizado pra rodar liso.</p>
+    </div>
+    <div class="card">
+      <div class="icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></div>
+      <h3>Pedido Direto</h3>
+      <p>Cliente entra no app e já chama você no whatsapp com um clique. Sem enrolação, venda direta.</p>
+    </div>
+    <div class="card">
+      <div class="icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h3>Seguro e Confiável</h3>
+      <p>Hospedagem segura e suporte para sua loja nunca ficar fora do ar. Monitoramento 24h.</p>
+    </div>
+  </div>
+
+  <h2 class="section-title">Como Funciona • PROTOCOLO APP</h2>
+  <div class="passos">
+    <div class="passo"><span>1</span><h4>Briefing</h4><p>Entendemos sua loja e o que você precisa.</p></div>
+    <div class="passo"><span>2</span><h4>Design</h4><p>Criamos o layout com sua identidade.</p></div>
+    <div class="passo"><span>3</span><h4>Desenvolvimento</h4><p>Transformamos em app de verdade.</p></div>
+    <div class="passo"><span>4</span><h4>Entrega</h4><p>Seu app pronto para seus clientes usarem.</p></div>
+  </div>
+
+  <div class="cta">
+    <a href="https://instagram.com/Sitesmind" target="_blank">QUERO MEU APP →</a>
+  </div>
+
+  <footer class="mono">© 2024 Mind • Aplicativo para Lojas • LAT -29.6369 LON -51.0128 • SYSTEM.MIND / TECH PROTOCOL • SCANNER ATIVO</footer>
+</div>
+
+<script>
+// EFEITOS TECH - NÃO APAGA NADA DO SEU CONTEÚDO
+const cG=document.getElementById('grid'), xG=cG.getContext('2d'); function rg(){cG.width=innerWidth;cG.height=innerHeight} rg(); addEventListener('resize',rg); let t=0;(function dg(){xG.clearRect(0,0,cG.width,cG.height);xG.strokeStyle='rgba(168,85,247,0.07)';xG.lineWidth=1;const s=60,off=(t*0.35)%s;for(let x=-s+off;x<cG.width+s;x+=s){xG.beginPath();xG.moveTo(x,0);xG.lineTo(x+cG.height*0.25,cG.height);xG.stroke()}for(let y=-s+off;y<cG.height+s;y+=s){xG.beginPath();xG.moveTo(0,y);xG.lineTo(cG.width,y+cG.width*0.08);xG.stroke()}t++;requestAnimationFrame(dg)})();
+const cP=document.getElementById('particles'), xP=cP.getContext('2d'); function rp(){cP.width=innerWidth;cP.height=innerHeight} rp(); addEventListener('resize',rp); let parts=[]; for(let i=0;i<60;i++)parts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.2+0.3}); (function dp(){xP.clearRect(0,0,cP.width,cP.height);parts.forEach(p=>{xP.fillStyle='#06b6d4';xP.shadowBlur=8;xP.shadowColor='#06b6d4';xP.beginPath();xP.arc(p.x,p.y,p.r,0,Math.PI*2);xP.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>cP.width)p.vx*=-1;if(p.y<0||p.y>cP.height)p.vy*=-1});xP.shadowBlur=0;requestAnimationFrame(dp)})();
+const txt="Transforme sua loja em um app que o cliente baixa no celular. Rápido, profissional e com a sua marca. Protocolo tech roxo ativado, sombreamento de jogo e hover 3D.";
+let i=0; const el=document.getElementById('typewriter'); function type(){if(i<txt.length){el.textContent+=txt.charAt(i);i++;setTimeout(type,18)}} setTimeout(type,300);
+// Tilt 3D nos cards
+document.querySelectorAll('.card, .passo').forEach(card=>{
+  card.addEventListener('mousemove', e=>{
+    const r=card.getBoundingClientRect(); const cx=r.left+r.width/2; const cy=r.top+r.height/2;
+    const dx=(e.clientX-cx)/r.width; const dy=(e.clientY-cy)/r.height;
+    card.style.transform=`rotateY(${dx*8}deg) rotateX(${-dy*8}deg) translateY(-5px)`;
+  });
+  card.addEventListener('mouseleave', ()=>{ card.style.transform=''; });
+});
+</script>
+</body>
+</html>

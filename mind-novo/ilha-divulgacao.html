@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIND // ILHA DE DIVULGAÇÃO v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#00f0ff;--blue:#3a7bff;--purple:#7c5cff;--bg:#020812;--card:rgba(10,20,45,0.85)}
+*{margin:0;padding:0;box-sizing:border-box;cursor:none}
+body{background:var(--bg);color:white;font-family:'Space Grotesk',sans-serif;overflow-x:hidden;min-height:100vh;position:relative}
+#stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-3;background:radial-gradient(ellipse at center, #0a1a3a 0%, #020812 75%);}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1}
+#grid{opacity:0.35;z-index:-2}
+#particles{z-index:-1}
+.mono{font-family:'JetBrains Mono',monospace}
+.cursor{position:fixed;top:0;left:0;width:20px;height:20px;border:1px solid var(--cyan);border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:screen;transition:transform 0.15s;box-shadow:0 0 15px var(--cyan)}
+.cursor-dot{position:fixed;top:0;left:0;width:4px;height:4px;background:var(--cyan);border-radius:50%;pointer-events:none;z-index:9999;box-shadow:0 0 10px var(--cyan)}
+#loader{position:fixed;inset:0;background:#020812;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:0.8s}
+#loader.hidden{opacity:0;pointer-events:none;transform:scale(1.1)}
+.loader-text{font-family:'JetBrains Mono';font-size:12px;letter-spacing:4px;color:var(--cyan);margin-bottom:20px}
+.loader-bar{width:200px;height:2px;background:rgba(0,240,255,0.15);border-radius:10px;overflow:hidden}
+.loader-progress{height:100%;width:0%;background:var(--cyan);box-shadow:0 0 15px var(--cyan);animation:load 1.8s ease-in-out forwards}
+@keyframes load{to{width:100%}}
+.planet{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;border-radius:50%;background:radial-gradient(circle at 30% 30%, rgba(0,240,255,0.15), rgba(10,20,80,0.1) 40%, transparent 70%);border:1px solid rgba(0,240,255,0.08);box-shadow:inset 0 0 100px rgba(0,240,255,0.1), 0 0 200px rgba(0,240,255,0.05);animation:rotate 120s linear infinite;z-index:-2;pointer-events:none}
+.planet::before{content:'';position:absolute;inset:-1px;border-radius:50%;background:conic-gradient(from 0deg, transparent, var(--cyan), transparent 30%);animation:spin 4s linear infinite;mask:radial-gradient(circle, transparent 68%, black 70%)}
+@keyframes rotate{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.top-bar{padding:20px 40px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,240,255,0.15);backdrop-filter:blur(20px);position:relative;z-index:2}
+.logo{font-weight:700;letter-spacing:3px;font-size:18px}
+.logo span{color:var(--cyan);text-shadow:0 0 15px var(--cyan)}
+.status{font-size:11px;letter-spacing:2px;color:var(--cyan);border:1px solid rgba(0,240,255,0.3);padding:6px 14px;border-radius:20px;background:rgba(0,240,255,0.05);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0px var(--cyan)}50%{box-shadow:0 0 20px rgba(0,240,255,0.3)}}
+.hero{text-align:center;padding:60px 20px 30px;position:relative;z-index:2}
+.hero h1{font-size:64px;letter-spacing:-2px;line-height:0.9;margin-bottom:15px;position:relative;display:inline-block}
+.hero h1 .line1{color:white;display:block;animation:glitch1 4s infinite}
+.hero h1 .line2{color:var(--cyan);display:block;text-shadow:0 0 30px rgba(0,240,255,0.8);animation:glitch2 4s infinite}
+@keyframes glitch1{0%,90%,100%{transform:translate(0)}92%{transform:translate(-2px,1px)}93%{transform:translate(2px,-1px)}}
+@keyframes glitch2{0%,90%,100%{transform:translate(0)}91%{transform:translate(1px,0)}94%{transform:translate(-1px,0)}}
+.typewriter{font-family:'JetBrains Mono';font-size:13px;color:rgba(255,255,255,0.6);max-width:650px;margin:0 auto;min-height:40px;letter-spacing:0.5px}
+.typewriter::after{content:'_';animation:blink 1s infinite;color:var(--cyan)}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.grid-cards{max-width:1250px;margin:50px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;padding:0 30px 120px;position:relative;z-index:2}
+@media(max-width:900px){.grid-cards{grid-template-columns:1fr}.hero h1{font-size:38px}*{cursor:auto !important}.cursor,.cursor-dot{display:none}}
+.holo-card{position:relative;background:linear-gradient(180deg, rgba(15,30,70,0.9), rgba(8,18,40,0.85));border:1px solid rgba(0,240,255,0.25);border-radius:20px;padding:28px;backdrop-filter:blur(25px);overflow:hidden;transform-style:preserve-3d;transition:all 0.5s cubic-bezier(0.23,1,0.32,1);isolation:isolate}
+.holo-card::after{content:'';position:absolute;inset:0;border-radius:20px;padding:1px;background:linear-gradient(120deg, transparent, var(--cyan), transparent);mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);mask-composite:exclude;opacity:0;transition:0.5s}
+.holo-card:hover::after{opacity:1}
+.holo-card::before{content:'';position:absolute;--mx:50%;--my:50%;top:0;left:0;width:100%;height:100%;background:radial-gradient(600px circle at var(--mx) var(--my), rgba(0,240,255,0.15), transparent 40%);opacity:0;transition:0.3s;pointer-events:none;z-index:1}
+.holo-card:hover::before{opacity:1}
+.holo-card:hover{transform:translateY(-12px) rotateX(6deg) rotateY(-6deg);border-color:var(--cyan);box-shadow:0 25px 80px rgba(0,240,255,0.3), inset 0 0 30px rgba(0,240,255,0.08)}
+.card-num{font-family:'JetBrains Mono';font-size:10px;letter-spacing:2px;color:var(--cyan);margin-bottom:18px;display:flex;justify-content:space-between;position:relative;z-index:2}
+.card-num b{color:white;background:rgba(0,240,255,0.15);padding:2px 8px;border-radius:10px;border:1px solid rgba(0,240,255,0.2)}
+.icon{width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.12);position:relative;z-index:2;transition:0.4s}
+.holo-card:hover .icon{transform:scale(1.1) rotateY(15deg);box-shadow:0 0 30px currentColor}
+.card-1 .icon{background:linear-gradient(135deg,#3a7bff,#00f0ff);color:white}
+.card-2 .icon{background:linear-gradient(135deg,#7c5cff,#ff4ecd);color:white}
+.card-3 .icon{background:linear-gradient(135deg,#ff7a00,#ffcc00);color:white}
+.holo-card h3{font-size:21px;margin-bottom:10px;line-height:1.2;position:relative;z-index:2}
+.holo-card h3 span{color:var(--cyan)}
+.holo-card p{font-family:'JetBrains Mono';font-size:12.5px;line-height:1.6;color:rgba(255,255,255,0.65);margin-bottom:22px;min-height:68px;position:relative;z-index:2}
+.stats{display:flex;gap:10px;margin-bottom:22px;position:relative;z-index:2}
+.stat{flex:1;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:11px;text-align:center;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;bottom:0;left:0;height:2px;width:var(--w,60%);background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.stat b{display:block;font-family:'JetBrains Mono';font-size:14px;color:var(--cyan)}
+.stat i{font-style:normal;font-family:'JetBrains Mono';font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.5)}
+.btn{width:100%;padding:14px;background:transparent;border:1px solid var(--cyan);color:var(--cyan);font-family:'JetBrains Mono';font-size:12px;letter-spacing:1.5px;font-weight:700;border-radius:12px;cursor:none;transition:0.3s;position:relative;overflow:hidden;z-index:2}
+.btn::before{content:'';position:absolute;top:0;left:0;width:0;height:100%;background:var(--cyan);transition:0.4s cubic-bezier(0.23,1,0.32,1);z-index:-1}
+.btn:hover::before{width:100%}
+.btn:hover{color:#020812;box-shadow:0 0 30px var(--cyan);transform:translateZ(10px)}
+.tag-live{position:absolute;top:18px;right:18px;font-family:'JetBrains Mono';font-size:8px;letter-spacing:1px;padding:4px 8px;border-radius:20px;background:#00ff88;color:#000;font-weight:700;z-index:3;box-shadow:0 0 15px #00ff88;animation:live 1.5s infinite}
+@keyframes live{0%,100%{opacity:1}50%{opacity:0.6}}
+.scanner-line{position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);box-shadow:0 0 15px var(--cyan);animation:scan 2.5s linear infinite;opacity:0;z-index:3}
+.holo-card:hover .scanner-line{opacity:1}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.footer-hud{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,10,30,0.85);border:1px solid rgba(0,240,255,0.25);backdrop-filter:blur(20px);border-radius:100px;padding:10px 24px;font-family:'JetBrains Mono';font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.6);display:flex;gap:12px;align-items:center;z-index:10;box-shadow:0 0 30px rgba(0,240,255,0.1)}
+.footer-hud span{color:var(--cyan)}
+#modal{position:fixed;inset:0;background:rgba(2,8,18,0.85);backdrop-filter:blur(25px);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+#modal.active{display:flex}
+.modal-box{background:linear-gradient(180deg, rgba(15,30,70,0.95), rgba(5,12,30,0.98));border:1px solid var(--cyan);border-radius:20px;padding:35px;max-width:500px;width:100%;box-shadow:0 0 80px rgba(0,240,255,0.3);transform:scale(0.8);animation:pop 0.4s cubic-bezier(0.23,1,0.32,1) forwards}
+@keyframes pop{to{transform:scale(1)}}
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,240,255,0.1);border:1px solid var(--cyan);backdrop-filter:blur(15px);color:white;font-family:'JetBrains Mono';font-size:12px;padding:12px 20px;border-radius:100px;opacity:0;transition:0.4s;z-index:2000;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="loader"><div class="loader-text mono">SYSTEM.MIND // CARREGANDO ILHA DE DIVULGAÇÃO</div><div class="loader-bar"><div class="loader-progress"></div></div></div>
+<div class="cursor"></div><div class="cursor-dot"></div>
+<div id="stars"></div>
+<canvas id="grid"></canvas>
+<canvas id="particles"></canvas>
+<div class="planet"></div>
+
+<div class="top-bar">
+  <div class="logo mono">SYSTEM.<span>MIND</span> // ILHA_DIVULGAÇÃO_v2.0</div>
+  <div class="status mono">● PROTOCOLO: DIVULGAÇÃO_ATIVA • 3 NÓDULOS</div>
+</div>
+
+<div class="hero">
+  <h1><span class="line1">ILHA DE</span><span class="line2">DIVULGAÇÃO</span></h1>
+  <div class="typewriter mono" id="typewriter"></div>
+</div>
+
+<div class="grid-cards">
+  <div class="holo-card card-1">
+    <div class="scanner-line"></div><div class="tag-live">● AO VIVO</div>
+    <div class="card-num mono">01_DIVULGACAO <b>SITES</b></div>
+    <div class="icon">🌐</div>
+    <h3>DESTAQUE NOS <span>SITES MIND</span></h3>
+    <p>Sua empresa em destaque na aba SITES do perfil oficial da MIND. Tráfego orgânico direto de quem busca empresas na sua cidade. Vitrine premium 24h.</p>
+    <div class="stats">
+      <div class="stat" style="--w:85%"><b data-count="8.4" data-suffix="k">8.4k</b><i>VISITAS</i></div>
+      <div class="stat" style="--w:92%"><b>TOP 3</b><i>RANKING</i></div>
+      <div class="stat" style="--w:100%"><b>24H</b><i>NO AR</i></div>
+    </div>
+    <button class="btn" onclick="ativarSites(event)">ATIVAR DESTAQUE →</button>
+  </div>
+  <div class="holo-card card-2">
+    <div class="scanner-line"></div>
+    <div class="card-num mono">02_DIVULGACAO <b>POSTS</b></div>
+    <div class="icon">📦</div>
+    <h3>PACOTES DE <span>POSTS PRONTOS</span></h3>
+    <p>Pacotes de posts já criados no VS. Carrossel, Stories e Reels com copy que vende. É só escolher o pack e começar a postar. Economia de tempo total.</p>
+    <div class="stats">
+      <div class="stat" style="--w:70%"><b>12</b><i>POSTS/PACK</i></div>
+      <div class="stat" style="--w:100%"><b>100%</b><i>EDITÁVEL</i></div>
+      <div class="stat" style="--w:60%"><b>VS</b><i>READY</i></div>
+    </div>
+    <button class="btn" onclick="verPacotes(event)">VER PACOTES →</button>
+  </div>
+  <div class="holo-card card-3">
+    <div class="scanner-line"></div>
+    <div class="card-num mono">03_DIVULGACAO <b>INSTA</b></div>
+    <div class="icon">📈</div>
+    <h3>IMPULSO NO <span>INSTAGRAM</span></h3>
+    <p>Sistema que ajuda o Instagram da sua empresa a crescer: análise de bio, hashtags que convertem, roteiros de stories e ganchos de Reels pra viralizar.</p>
+    <div class="stats">
+      <div class="stat" style="--w:75%"><b data-count="7" data-suffix="x">7x</b><i>ALCANCE</i></div>
+      <div class="stat" style="--w:80%"><b>IA</b><i>LEGENDAS</i></div>
+      <div class="stat" style="--w:90%"><b>#</b><i>HACK</i></div>
+    </div>
+    <button class="btn" onclick="impulsionarInsta(event)">IMPULSIONAR AGORA →</button>
+  </div>
+</div>
+
+<div class="footer-hud mono"><span>ILHA DIVULGAÇÃO v2.0</span> • <span style="color:#00ff88">● ONLINE</span> • [ <span>SCANNER</span> • <span>TYPEWRITER</span> • <span>3D HOVER</span> • <span>PARTICLES</span> ]</div>
+<div id="toast" class="mono">Mensagem copiada! Cole no Direct ✓</div>
+
+<script>
+// === FUNÇÕES DOS BOTÕES QUE VOCÊ PEDIU ===
+function copiarMensagem(texto){
+  navigator.clipboard.writeText(texto).then(()=>{
+    const toast=document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'),3000);
+  });
+}
+
+function ativarSites(e){
+  e.stopPropagation();
+  const msg="quero ter meu perfil ativado no sites mind";
+  copiarMensagem(msg);
+  // Abre o Direct do @Sitesmind
+  window.open("https://ig.me/m/sitesmind", "_blank");
+  setTimeout(()=>{ window.open("https://www.instagram.com/sitesmind/", "_blank"); }, 300);
+}
+
+function verPacotes(e){
+  e.stopPropagation();
+  // Redireciona para pacotes.html
+  window.location.href="pacotes.html";
+}
+
+function impulsionarInsta(e){
+  e.stopPropagation();
+  const msg="Mind olhe meu perfil e me ajude";
+  copiarMensagem(msg);
+  // Abre o Direct da MIND - troque para seu @ principal se for diferente
+  window.open("https://ig.me/m/sitesmind", "_blank");
+}
+
+// Loader
+setTimeout(()=>document.getElementById('loader').classList.add('hidden'),1800);
+// Cursor
+const cur=document.querySelector('.cursor'), dot=document.querySelector('.cursor-dot');
+let mx=0,my=0,cx=0,cy=0; document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY; dot.style.left=mx-2+'px'; dot.style.top=my-2+'px';});
+(function anim(){cx+=(mx-cx)*0.15;cy+=(my-cy)*0.15;cur.style.left=cx-10+'px';cur.style.top=cy-10+'px';requestAnimationFrame(anim)})();
+document.querySelectorAll('.holo-card,.btn').forEach(el=>{el.addEventListener('mouseenter',()=>cur.style.transform='scale(1.8)');el.addEventListener('mouseleave',()=>cur.style.transform='scale(1)')});
+// Typewriter
+const text="Bem-vindo à Ilha de Divulgação v2.0. Protocolo impressionante ativado. Sua empresa deixa de ser invisível e começa a dominar o radar. Escolha seu nódulo de exposição.";
+let i=0; const el=document.getElementById('typewriter');
+function type(){ if(i<text.length){el.textContent+=text.charAt(i);i++;setTimeout(type,22)} } setTimeout(type,1900);
+// Grid
+const cG=document.getElementById('grid'), xG=cG.getContext('2d');
+function rg(){cG.width=innerWidth;cG.height=innerHeight} rg(); addEventListener('resize',rg);
+let t=0; (function dg(){xG.clearRect(0,0,cG.width,cG.height);xG.strokeStyle='rgba(0,240,255,0.07)';xG.lineWidth=1;const s=60, off=(t*0.4)%s; for(let x=-s+off;x<cG.width+s;x+=s){xG.beginPath();xG.moveTo(x,0);xG.lineTo(x+cG.height*0.3,cG.height);xG.stroke()} for(let y=-s+off;y<cG.height+s;y+=s){xG.beginPath();xG.moveTo(0,y);xG.lineTo(cG.width,y+cG.width*0.1);xG.stroke()} t++; requestAnimationFrame(dg)})();
+// Particles
+const cP=document.getElementById('particles'), xP=cP.getContext('2d');
+function rp(){cP.width=innerWidth;cP.height=innerHeight} rp(); addEventListener('resize',rp);
+let parts=[]; for(let i=0;i<80;i++)parts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5,r:Math.random()*1.5+0.3});
+document.addEventListener('mousemove',e=>{if(parts.length<120)parts.push({x:e.clientX,y:e.clientY,vx:(Math.random()-0.5)*2,vy:(Math.random()-0.5)*2,r:1.2,life:1})});
+(function dp(){xP.clearRect(0,0,cP.width,cP.height); parts.forEach((p,idx)=>{if(p.life!==undefined){p.life-=0.02; if(p.life<=0){parts.splice(idx,1);return} xP.globalAlpha=p.life} else xP.globalAlpha=0.6; xP.fillStyle='#00f0ff'; xP.shadowBlur=10; xP.shadowColor='#00f0ff'; xP.beginPath(); xP.arc(p.x,p.y,p.r,0,Math.PI*2); xP.fill(); p.x+=p.vx; p.y+=p.vy; if(p.life===undefined){if(p.x<0||p.x>cP.width)p.vx*=-1; if(p.y<0||p.y>cP.height)p.vy*=-1}}); xP.globalAlpha=1; xP.shadowBlur=0; requestAnimationFrame(dp)})();
+// Card 3D
+document.querySelectorAll('.holo-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const rect=card.getBoundingClientRect(); const x=e.clientX-rect.left, y=e.clientY-rect.top;
+    card.style.setProperty('--mx',x+'px'); card.style.setProperty('--my',y+'px');
+    const cx=rect.width/2, cy=rect.height/2; card.style.transform=`translateY(-12px) rotateX(${(y-cy)/12}deg) rotateY(${(cx-x)/12}deg)`;
+  });
+  card.addEventListener('mouseleave',()=>{card.style.transform=''});
+});
+setTimeout(()=>{document.querySelectorAll('[data-count]').forEach(el=>{let cur=0;const target=parseFloat(el.dataset.count);const suf=el.dataset.suffix||'';const inc=target/60;const int=setInterval(()=>{cur+=inc; if(cur>=target){cur=target; clearInterval(int)} el.textContent=(cur%1===0?cur.toFixed(0):cur.toFixed(1))+suf},20)})},2100);
+</script>
+</body>
+</html>

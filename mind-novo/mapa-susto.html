@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Mundo do Comercio - Mapa do Susto PRO TECH</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+:root{--neon:#00ffff;--roxo:#a855f7;--bg:#02020a;--card:rgba(10,15,40,0.88);--red:#ff3b3b;--green:#00ff88}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;min-height:100vh;font-family:'JetBrains Mono',monospace;overflow-x:hidden;position:relative}
+#stars{position:fixed;inset:0;z-index:-3;background:radial-gradient(ellipse at center, #0f0a2a 0%, #02020a 70%)}
+#grid{position:fixed;inset:0;z-index:-2;opacity:0.2}
+#particles{position:fixed;inset:0;z-index:-1}
+.mono{font-family:'JetBrains Mono',monospace}
+.container{max-width:1250px;margin:0 auto;position:relative;z-index:2;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px;padding:18px 24px;border:1px solid rgba(0,255,255,0.18);border-radius:16px;background:rgba(10,15,40,0.75);backdrop-filter:blur(16px);box-shadow:0 0 40px rgba(0,255,255,0.08)}
+.logo{font-size:20px;font-weight:900;font-family:Inter;letter-spacing:-0.5px} .logo span{color:var(--neon);text-shadow:0 0 18px var(--neon)}
+nav{display:flex;gap:10px;flex-wrap:wrap} 
+nav a{padding:9px 18px;border-radius:100px;border:1px solid rgba(255,255,255,0.12);color:#fff;text-decoration:none;font-size:12px;letter-spacing:1px;transition:0.3s;background:rgba(255,255,255,0.03)}
+nav a:hover{border-color:var(--neon);box-shadow:0 0 15px rgba(0,255,255,0.2);transform:translateY(-1px)}
+nav a.destaque{background:var(--neon);color:#000;font-weight:800;box-shadow:0 0 25px var(--neon);border:none}
+
+/* SUSTO BOX - HOLO */
+.susto-box{margin-top:26px;background:linear-gradient(180deg, rgba(15,25,60,0.92), rgba(5,10,28,0.95));border:1px solid rgba(0,255,255,0.25);border-radius:24px;padding:32px;position:relative;overflow:hidden;backdrop-filter:blur(20px);box-shadow:0 0 80px rgba(0,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.06)}
+.susto-box::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--neon),transparent);box-shadow:0 0 20px var(--neon);animation:scan 2.5s linear infinite;z-index:3}
+@keyframes scan{0%{top:0}100%{top:100%}}
+.gridBg{position:absolute;inset:0;background:linear-gradient(rgba(0,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,255,0.03) 1px, transparent 1px);background-size:26px 26px;pointer-events:none;opacity:0.4}
+.susto-header{text-align:center;margin-bottom:22px;position:relative;z-index:2}
+.susto-header h1{font-family:Inter;font-size:36px;letter-spacing:-1px;line-height:0.9} .susto-header h1 span{color:var(--neon);text-shadow:0 0 18px var(--neon);display:block}
+.typewriter{font-size:12px;color:#8fa0c0;max-width:720px;margin:12px auto 0;min-height:38px;line-height:1.6}
+.typewriter::after{content:'_';color:var(--neon);animation:blink 1s infinite}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.inputs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px;position:relative;z-index:2}
+.inputs input{padding:15px 18px;border-radius:14px;border:1px solid rgba(0,255,255,0.18);background:rgba(0,0,0,0.5);color:#fff;width:260px;outline:none;font-family:'JetBrains Mono';font-size:13px;transition:0.3s}
+.inputs input:focus{border-color:var(--neon);box-shadow:0 0 20px rgba(0,255,255,0.25);transform:translateY(-1px)}
+.btn-susto{padding:15px 32px;border-radius:14px;background:linear-gradient(180deg,var(--neon),#00aaff);color:#000;font-weight:900;font-size:13px;letter-spacing:1px;border:none;cursor:pointer;transition:0.35s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden;box-shadow:0 0 30px rgba(0,255,255,0.35)}
+.btn-susto::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);animation:btnShine 2.2s infinite}
+@keyframes btnShine{0%{left:-100%}100%{left:100%}}
+.btn-susto:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 0 45px rgba(0,255,255,0.6)}
+.btn-susto:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.corner{position:absolute;width:28px;height:28px;border:2px solid var(--neon);box-shadow:0 0 12px var(--neon);opacity:0.6}
+.c1{top:14px;left:14px;border-right:0;border-bottom:0} .c2{top:14px;right:14px;border-left:0;border-bottom:0} .c3{bottom:14px;left:14px;border-right:0;border-top:0} .c4{bottom:14px;right:14px;border-left:0;border-top:0}
+
+/* MAPA + DASHBOARD */
+.dashboard{display:grid;grid-template-columns:2.1fr 0.9fr;gap:18px;margin-top:28px;display:none;position:relative;z-index:2}
+#map{height:560px;border-radius:18px;border:1px solid rgba(0,255,255,0.18);box-shadow:0 0 40px rgba(0,255,255,0.1);overflow:hidden}
+.stats{display:flex;flex-direction:column;gap:12px}
+.stat-card{background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.08);border-left:3px solid var(--neon);border-radius:14px;padding:16px;position:relative;overflow:hidden;transition:0.3s;transform-style:preserve-3d}
+.stat-card:hover{transform:translateY(-3px) rotateX(3deg);border-color:var(--neon);box-shadow:0 12px 30px rgba(0,255,255,0.15)}
+.stat-card.perigo{border-left-color:var(--red);background:linear-gradient(180deg, rgba(255,59,59,0.12), rgba(255,59,59,0.03))}
+.stat-card.perigo b{color:var(--red)}
+.stat-card h4{font-size:10px;color:#7aa0bf;letter-spacing:1.5px}
+.stat-card .valor{font-size:28px;font-weight:900;margin-top:4px;font-family:Inter;color:#fff}
+.stat-card .desc{font-size:11px;color:#9ab;line-height:1.4;margin-top:4px}
+.loading{text-align:center;padding:50px;color:var(--neon);display:none;position:relative;z-index:2;font-size:13px;letter-spacing:1px}
+.loading .bar{width:70%;height:3px;background:rgba(0,255,255,0.15);border-radius:10px;margin:18px auto 0;overflow:hidden}
+.loading .bar i{display:block;height:100%;width:0%;background:var(--neon);box-shadow:0 0 15px var(--neon);animation:load 2.2s ease-in-out infinite}
+@keyframes load{0%{width:0%}50%{width:85%}100%{width:100%}}
+.ctaUnlock{background:linear-gradient(90deg,var(--neon),#00ff88);color:#000;padding:14px;border-radius:14px;text-align:center;font-weight:900;font-size:12px;letter-spacing:0.5px;cursor:pointer;box-shadow:0 0 30px rgba(0,255,255,0.3);transition:0.3s;position:relative;overflow:hidden}
+.ctaUnlock:hover{transform:scale(1.02);box-shadow:0 0 45px rgba(0,255,255,0.5)}
+@media(max-width:900px){.dashboard{grid-template-columns:1fr}.susto-header h1{font-size:26px}}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<canvas id="grid"></canvas>
+<canvas id="particles"></canvas>
+
+<div class="container">
+<header>
+  <div class="logo mono">MUNDINHO <span>DO MIND</span> // MAPA_SUSTO_TECH</div>
+  <nav>
+    <a href="comercio.html" class="destaque">O MUNDO DO COMERCIO</a>
+    <a href="mundinho.html">VOLTAR AO MUNDO</a>
+  </nav>
+</header>
+
+<div class="susto-box">
+  <div class="corner c1"></div><div class="corner c2"></div><div class="corner c3"></div><div class="corner c4"></div>
+  <div class="gridBg"></div>
+  <div class="susto-header">
+    <h1>MAPA DO SUSTO <span>PROTOCOLO V2 • TECH BLUE</span></h1>
+    <div class="typewriter mono" id="typewriter"></div>
+    <div class="inputs">
+      <input id="cep" placeholder="CEP: 93800-000">
+      <input id="tipo" placeholder="Tipo: barbearia, petshop, roupas">
+      <button id="btn" class="btn-susto" onclick="executarSusto()">GERAR MAPA DO SUSTO →</button>
+    </div>
+  </div>
+
+  <div id="loading" class="loading mono">☠️ PROTOCOLO DE ESCANEAMENTO ATIVADO • VARRendo 5KM AO REDOR...<br>ISSO PODE DOER<br><div class="bar"><i></i></div></div>
+
+  <div id="dashboard" class="dashboard">
+    <div id="map"></div>
+    <div class="stats">
+      <div class="stat-card perigo">
+        <h4>CONCORRENTES DETECTADOS</h4>
+        <div class="valor" id="qtdConc">0</div>
+        <div class="desc" id="descConc">Num raio onde só deveria ter você</div>
+      </div>
+      <div class="stat-card">
+        <h4>ÍNDICE DE SATURAÇÃO</h4>
+        <div class="valor" id="saturacao">0%</div>
+        <div class="desc">Quanto maior, mais dinheiro está indo pro concorrente</div>
+      </div>
+      <div class="stat-card perigo">
+        <h4>ÍNDICE DE INVISIBILIDADE</h4>
+        <div class="valor" id="invisivel">0%</div>
+        <div class="desc">Seu nível de invisibilidade no Maps. Clientes não te acham.</div>
+      </div>
+      <div class="stat-card" style="border-left-color:#00ff88">
+        <h4>ZONA DE OPORTUNIDADE</h4>
+        <div class="valor" id="oportunidade" style="font-size:14px;line-height:1.2">Calculando...</div>
+        <div class="desc">Onde abrir ou onde anunciar pra roubar cliente</div>
+      </div>
+      <div class="ctaUnlock" id="cta" onclick="window.open('https://ig.me/m/sitesmind','_blank')">
+        DESBLOQUEIE O NOME DOS CONCORRENTES + O QUE ELES MAIS VENDEM POR R$9,90 →
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.35);text-align:center;font-family:'JetBrains Mono'">LAT -29.6369 LON -51.0128 • RADAR MIND • BUILD 51 • HOLO_TECH</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// BG EFFECTS - NÃO APAGA O SEU SCRIPT, SÓ EFEITO VISUAL
+const cG=document.getElementById('grid'), xG=cG.getContext('2d'); function rg(){cG.width=innerWidth;cG.height=innerHeight} rg(); addEventListener('resize',rg); let t=0;(function dg(){xG.clearRect(0,0,cG.width,cG.height);xG.strokeStyle='rgba(0,255,255,0.06)';xG.lineWidth=1;const s=60,off=(t*0.35)%s;for(let x=-s+off;x<cG.width+s;x+=s){xG.beginPath();xG.moveTo(x,0);xG.lineTo(x+cG.height*0.25,cG.height);xG.stroke()}for(let y=-s+off;y<cG.height+s;y+=s){xG.beginPath();xG.moveTo(0,y);xG.lineTo(cG.width,y+cG.width*0.08);xG.stroke()}t++;requestAnimationFrame(dg)})();
+const cP=document.getElementById('particles'), xP=cP.getContext('2d'); function rp(){cP.width=innerWidth;cP.height=innerHeight} rp(); addEventListener('resize',rp); let parts=[]; for(let i=0;i<70;i++)parts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,r:Math.random()*1.4+0.3}); (function dp(){xP.clearRect(0,0,cP.width,cP.height);parts.forEach(p=>{xP.fillStyle='#00ffff';xP.shadowBlur=8;xP.shadowColor='#00ffff';xP.beginPath();xP.arc(p.x,p.y,p.r,0,Math.PI*2);xP.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>cP.width)p.vx*=-1;if(p.y<0||p.y>cP.height)p.vy*=-1});xP.shadowBlur=0;requestAnimationFrame(dp)})();
+const txt="Digite o CEP da sua loja. Nosso radar escaneia 5km e te mostra onde você está sangrando dinheiro. Protocolo tech blue com heatmap de dor em tempo real.";
+let i=0; const el=document.getElementById('typewriter'); function type(){if(i<txt.length){el.textContent+=txt.charAt(i);i++;setTimeout(type,18)}} setTimeout(type,400);
+
+// SEU SCRIPT ORIGINAL 100% PRESERVADO ABAIXO - SEM APAGAR NADA
+let map, heatLayer, markers = [];
+async function executarSusto(){
+  const cepRaw = document.getElementById('cep').value;
+  const tipo = document.getElementById('tipo').value.trim() || 'loja';
+  const btn = document.getElementById('btn');
+  if(cepRaw.length < 8){ alert('Mano, coloca um CEP válido!'); return; }
+
+  btn.disabled = true; btn.innerText = 'ESCANEANDO...';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+
+  try {
+    const cep = cepRaw.replace(/\D/g,'');
+    const viaCep = await fetch(`https://viacep.com.br/ws/${cep}/json/`).then(r=>r.json());
+    if(viaCep.erro) throw new Error('CEP não encontrado');
+    const geo = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(viaCep.logradouro+', '+viaCep.localidade)}`).then(r=>r.json());
+    const lat = parseFloat(geo[0].lat); const lon = parseFloat(geo[0].lon);
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'grid';
+    if(map) map.remove();
+    map = L.map('map').setView([lat, lon], 14);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '© Mundinho do Mind - Satélite'
+}).addTo(map); 
+    const myIcon = L.divIcon({html:'<div style="background:#00ff88;width:22px;height:22px;border-radius:50%;border:3px solid #000;box-shadow:0 0 15px #00ff88"></div>', iconSize:[22,22]});
+    L.marker([lat, lon], {icon: myIcon}).addTo(map).bindPopup('<b style="color:#00ff88">📍 SUA LOJA - CENTRO DA OPERAÇÃO</b>').openPopup();
+    L.circle([lat, lon], {radius:5000, color:'#00ffff', weight:1, fillOpacity:0.03}).addTo(map);
+
+    const shopMap = { 'barbearia':'barber|hairdresser', 'roupas':'clothes|fashion', 'petshop':'pet|pet_shop', 'loja':'shop', 'mercado':'supermarket|grocery', 'restaurante':'restaurant|food' };
+    const tag = shopMap[tipo.toLowerCase()] || 'shop';
+    const query = `[out:json];(node(around:5000,${lat},${lon})["shop"~"${tag}"];node(around:5000,${lat},${lon})["amenity"~"${tag}"];);out 40;`;
+    const data = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`).then(r=>r.json());
+
+    const heatData = []; markers.forEach(m=>map.removeLayer(m)); markers=[];
+    data.elements.forEach(el=>{
+      if(!el.lat) return;
+      heatData.push([el.lat, el.lon, 0.8]);
+      const icon = L.divIcon({html:'<div style="background:#ff3b3b;width:14px;height:14px;border-radius:50%;border:2px solid #000;box-shadow:0 0 10px red"></div>', iconSize:[14,14]});
+      const mk = L.marker([el.lat, el.lon], {icon}).addTo(map).bindPopup(`<b style="color:red">🔴 CONCORRENTE</b><br>${el.tags.name || 'Sem nome'}<br><small>${el.tags.shop||''}</small>`);
+      markers.push(mk);
+    });
+
+    if(heatLayer) map.removeLayer(heatLayer);
+    heatLayer = L.heatLayer(heatData, {radius:35, blur:25, maxZoom:14, gradient:{0.4:'blue',0.6:'yellow',0.8:'orange',1.0:'red'}}).addTo(map);
+
+    const qtd = data.elements.length;
+    const saturacao = Math.min(100, Math.round((qtd / 25) * 100));
+    const invisivel = Math.min(95, 40 + qtd * 2);
+    
+    // animação dos números
+    function animCount(id, target, suffix=''){
+      let cur=0; const el=document.getElementById(id); const inc=target/40;
+      const it=setInterval(()=>{cur+=inc; if(cur>=target){cur=target; clearInterval(it)} el.textContent=Math.floor(cur)+suffix; if(id!=='qtdConc' && suffix==='') el.textContent=Math.floor(cur)+'%';},18);
+    }
+    animCount('qtdConc', qtd);
+    animCount('saturacao', saturacao, '%');
+    animCount('invisivel', invisivel, '%');
+    document.getElementById('oportunidade').innerHTML = qtd > 15 ? 'FUJA do centro vermelho.<br>Ataca as bordas pretas do mapa' : 'Pouca concorrência! DOMINE a região agora';
+    document.getElementById('descConc').innerText = qtd > 20 ? 'SANGUE NO MAPA. Você está cercado.' : qtd > 10 ? 'Concorrência pesada. Você está perdendo cliente todo dia.' : 'Mercado com espaço. Hora de crescer.';
+
+  } catch(e){
+    alert('Erro no radar: '+e.message);
+  } finally {
+    btn.disabled = false; btn.innerText = 'GERAR MAPA DO SUSTO →';
+  }
+}
+</script>
+</body>
+</html>

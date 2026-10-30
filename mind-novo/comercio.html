@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>MUNDINHO - AZUL ESCURO NEON FINAL</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#020617; overflow:hidden; font-family:Inter,sans-serif; cursor:grab;}
+  #canvas{position:fixed; inset:0;}
+  .ui{position:absolute; z-index:10; pointer-events:none; color:white;}
+  .top{top:20px; left:20px;} .top h1{font-size:2.6rem; font-weight:900; line-height:0.9; text-shadow:0 0 15px #1e40af;}
+  .top h1 b{color:#22d3ee; text-shadow:0 0 20px #22d3ee;}
+  .top span{color:#a855f7; font-size:0.75rem; font-weight:800;}
+  .hint{bottom:18px; left:50%; transform:translateX(-50%); background:rgba(5,15,35,0.9); border:1px solid #22d3ee66; padding:8px 16px; border-radius:30px; color:#7dd3fc; font-size:0.65rem; backdrop-filter:blur(10px);}
+  #tooltip{position:fixed; z-index:20; background:rgba(10,20,50,0.98); border-radius:10px; padding:10px 14px; color:white; font-weight:800; font-size:0.8rem; pointer-events:none; display:none; border:2px solid #22d3ee; box-shadow:0 0 25px #22d3eeaa;}
+  #modal{position:fixed; inset:0; z-index:100; background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); display:none; align-items:center; justify-content:center;}
+  #modal.ativa{display:flex;} .box{background:#0a1020; border:1px solid #3b82f6; border-radius:18px; padding:26px; max-width:400px; box-shadow:0 0 50px #3b82f655; text-align:center;}
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<div class="ui top"><span>Mind • PLANETA AZUL TECNOLÓGICO NEON</span><h1>GOOGLE<br>LOJISTAS<br><b>DA SUSTO<br>CONCORRÊNCIA</b></h1></div>
+<div class="ui hint">PLANETA AZUL ESCURO + NEON AZUL EM VOLTA + ILHAS VISÍVEIS • GIRE • PASSE O MOUSE</div>
+<div id="tooltip"></div>
+<div id="modal"><div class="box"><h2 id="mTitle" style="color:#22d3ee; margin-bottom:10px;"></h2><p id="mDesc" style="color:#cbd5e1; margin-bottom:18px; line-height:1.4; font-size:0.9rem;"></p><button onclick="document.getElementById('modal').classList.remove('ativa')" style="width:100%; padding:11px; border-radius:10px; border:none; background:#3b82f6; color:white; font-weight:800; cursor:pointer;">FECHAR</button></div></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+const canvas=document.getElementById('canvas');
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x010314);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,0.1,1000); camera.position.set(0,0.3,4.8);
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true}); renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+// FIX: EXPOSIÇÃO NORMAL PRA NÃO VIRAR BOLA BRANCA
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=4.00;
+const composer=new EffectComposer(renderer); composer.addPass(new RenderPass(scene,camera));
+// FIX: BLOOM BAIXO PRA NÃO ESTOURAR
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.45,0.8,0.3));
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=0.09; controls.enablePan=false; controls.minDistance=3; controls.maxDistance=8; controls.autoRotate=true; controls.autoRotateSpeed=0.35;
+
+scene.add(new THREE.AmbientLight(0x0a1020,0.45));
+const sunLight=new THREE.DirectionalLight(0x60a5fa,0.6); sunLight.position.set(5,3,5); scene.add(sunLight);
+
+// PLANETA AZUL ESCURO - NÃO BRANCO
+const loader=new THREE.TextureLoader();
+const earthDay=loader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+const earthNight=loader.load('https://threejs.org/examples/textures/planets/earth_lights_2048.png');
+
+const earthGeo=new THREE.SphereGeometry(2,64,64);
+const earthMat=new THREE.MeshPhongMaterial({
+  map: earthDay,
+  emissiveMap: earthNight,
+  emissive: 0x2233aa,
+  emissiveIntensity: 0.35,
+  color: 0x14307a,
+  specular: 0x111111,
+  shininess: 8
+});
+const earth=new THREE.Mesh(earthGeo, earthMat); scene.add(earth);
+
+// NEON AZUL EM VOLTA - IGUAL TUA FOTO, MAS SEM TAMPA AS ILHAS
+const neonRim=new THREE.Mesh(
+  new THREE.SphereGeometry(2.22,64,64),
+  new THREE.ShaderMaterial({
+    transparent:true, side:THREE.BackSide, blending:THREE.AdditiveBlending,
+    vertexShader:`varying vec3 vNormal; void main(){ vNormal=normalize(normalMatrix * normal); gl_Position=projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+    fragmentShader:`varying vec3 vNormal; void main(){ float intensity=pow(0.65 - dot(vNormal, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor=vec4(0.15,0.5,1.0,1.0) * intensity * 0.9; }`
+  })
+);
+scene.add(neonRim);
+
+// ANÉIS PONTILHADOS
+function createDottedOrbit(radius, tiltX, tiltY, dots){
+  const points=[];
+  for(let i=0;i<dots;i++){ if(i%2===0){ const a=(i/dots)*Math.PI*2; points.push(new THREE.Vector3(Math.cos(a)*radius,0,Math.sin(a)*radius)); } }
+  const geo=new THREE.BufferGeometry().setFromPoints(points);
+  const mat=new THREE.PointsMaterial({size:0.035, color:0x3b82f6, transparent:true, opacity:0.65});
+  const mesh=new THREE.Points(geo, mat); mesh.rotation.x=tiltX; mesh.rotation.y=tiltY; return mesh;
+}
+const orbits=new THREE.Group();
+orbits.add(createDottedOrbit(2.6,0.3,0.2,140));
+orbits.add(createDottedOrbit(2.85,-0.4,0.8,140));
+orbits.add(createDottedOrbit(3.1,0.8,-0.3,120));
+scene.add(orbits);
+
+const starsGeo=new THREE.BufferGeometry(); const sPos=new Float32Array(6000*3); for(let i=0;i<6000*3;i++) sPos[i]=(Math.random()-0.5)*70; starsGeo.setAttribute('position',new THREE.BufferAttribute(sPos,3));
+scene.add(new THREE.Points(starsGeo,new THREE.PointsMaterial({size:0.02, color:0xffffff, transparent:true, opacity:0.25})));
+
+function latLonToVec3(lat,lon,r){
+  const phi=(90-lat)*Math.PI/180; const theta=(lon+180)*Math.PI/180;
+  return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(theta), r*Math.cos(phi), r*Math.sin(phi)*Math.sin(theta));
+}
+
+const ilhasData=[
+  {lat:38, lon:-95, color:0x22d3ee, nome:'ILHA 1 - CRIAÇÃO', desc:'Sites, Apps, Logos. AMÉRICA DO NORTE.'},
+  {lat:-15, lon:-55, color:0x22d3ee, nome:'ILHA 1 - CRIAÇÃO', desc:'Sites, Apps, Logos. AMÉRICA DO SUL.'},
+  {lat:51, lon:10, color:0xff3b3b, nome:'ILHA 2 - CONCORRÊNCIA', desc:'Onde concorrentes estão. EUROPA.'},
+  {lat:5, lon:20, color:0xfacc15, nome:'ILHA 3 - RAIO-X', desc:'Diagnóstico. ÁFRICA.'},
+  {lat:30, lon:85, color:0x22c55e, nome:'ILHA 4 - VENDAS', desc:'Vendas internet. ÁSIA.'},
+];
+
+const markers=[];
+ilhasData.forEach(d=>{
+  const pos=latLonToVec3(d.lat,d.lon,2.08);
+  const ringGeo=new THREE.RingGeometry(0.2,0.26,32);
+  const ringMat=new THREE.MeshBasicMaterial({color:d.color, transparent:true, opacity:0.9, side:THREE.DoubleSide});
+  const ring=new THREE.Mesh(ringGeo, ringMat);
+  ring.position.copy(pos); ring.lookAt(0,0,0); ring.userData={...d, ringMat, lat:d.lat, lon:d.lon}; scene.add(ring); markers.push(ring);
+  const dotGeo=new THREE.SphereGeometry(0.05,10,10);
+  const dotMat=new THREE.MeshBasicMaterial({color:d.color});
+  const dot=new THREE.Mesh(dotGeo, dotMat); dot.position.copy(pos); dot.userData={...d, ringMat, lat:d.lat, lon:d.lon, isDot:true}; scene.add(dot); markers.push(dot);
+});
+
+const raycaster=new THREE.Raycaster(); const mouse=new THREE.Vector2(); let hovered=null;
+const tooltip=document.getElementById('tooltip');
+window.addEventListener('mousemove', e=>{
+  mouse.x=(e.clientX/innerWidth)*2-1; mouse.y=-(e.clientY/innerHeight)*2+1;
+  tooltip.style.left=e.clientX+16+'px'; tooltip.style.top=e.clientY+16+'px';
+});
+window.addEventListener('click', ()=>{
+  if(hovered){
+    // SE FOR RAIO-X (ILHA AMARELA), VAI PRA TUA PÁGINA
+    if(hovered.nome.includes('RAIO-X') || hovered.nome.includes('ILHA 3')){
+      window.location.href = 'raiox.html';
+    } else {
+      // As outras ilhas continuam abrindo o modal normal
+      document.getElementById('mTitle').innerText=hovered.nome;
+      document.getElementById('mDesc').innerText=hovered.desc;
+      document.getElementById('modal').classList.add('ativa');
+    }
+  }
+});
+
+let time=0;
+function animate(){
+  requestAnimationFrame(animate); time+=0.02;
+  earth.rotation.y+=0.0007; neonRim.rotation.y+=0.0007; orbits.rotation.y+=0.0003;
+  markers.forEach(m=>{
+    const data=m.userData; const newLon=data.lon + THREE.MathUtils.radToDeg(earth.rotation.y);
+    const newPos=latLonToVec3(data.lat, newLon, 2.08); m.position.copy(newPos); if(!data.isDot) m.lookAt(0,0,0);
+    if(!data.isDot){ const pulse=0.85+Math.sin(time*2+data.lat)*0.2; m.material.opacity=pulse; }
+  });
+  raycaster.setFromCamera(mouse,camera); const hits=raycaster.intersectObjects(markers);
+  hovered=null; tooltip.style.display='none'; document.body.style.cursor='grab';
+  if(hits.length>0){ const data=hits[0].object.userData; if(data.nome){ hovered=data; tooltip.innerText=hovered.nome; tooltip.style.display='block'; tooltip.style.borderColor='#'+hovered.color.toString(16).padStart(6,'0'); document.body.style.cursor='pointer'; } }
+  controls.update(); composer.render();
+}
+animate();
+window.addEventListener('resize', ()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight); });
+</script>
+</body>
+</html>

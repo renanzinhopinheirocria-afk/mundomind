@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pacotes de Posts - Mind</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
+  body { background:#05010f; color:white; min-height:100vh; padding:20px; background-image: radial-gradient(circle at 20% 30%, rgba(168,85,247,0.2) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(6,182,212,0.15) 0%, transparent 40%); }
+  .container { max-width:1100px; margin:0 auto; background:rgba(15,5,30,0.9); border:1px solid rgba(168,85,247,0.4); border-radius:24px; padding:30px; box-shadow:0 0 50px rgba(168,85,247,0.3); }
+  .voltar { display:inline-block; margin-bottom:20px; color:#06b6d4; text-decoration:none; font-weight:600; font-size:14px; }
+  .hero { text-align:center; margin:20px 0 40px 0; }
+  .hero h1 { font-size:38px; font-weight:800; text-shadow:0 0 20px #a855f7; margin-bottom:10px; }
+  .hero p { color:#c4b5fd; font-size:16px; max-width:700px; margin:0 auto; }
+  .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; }
+  .card { background:#120826; border:1.5px solid rgba(168,85,247,0.6); border-radius:18px; padding:25px 20px; text-align:center; display:flex; flex-direction:column; transition:0.3s; }
+  .card:hover { transform:translateY(-5px); box-shadow:0 0 25px rgba(168,85,247,0.5); border-color:#06b6d4; }
+  .card.destacado { border-color:#06b6d4; box-shadow:0 0 30px rgba(6,182,212,0.5); }
+  .card h3 { font-size:22px; margin-bottom:5px; }
+  .preco { font-size:28px; font-weight:800; margin:10px 0; background:linear-gradient(90deg, #a855f7, #06b6d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .preco small { font-size:14px; -webkit-text-fill-color:#c4b5fd; }
+  .card ul { list-style:none; margin:15px 0 25px 0; flex:1; }
+  .card li { color:#c4b5fd; font-size:14px; margin-bottom:8px; border-bottom:1px solid rgba(168,85,247,0.2); padding-bottom:8px; }
+  .btn { display:block; background:linear-gradient(90deg, #a855f7, #06b6d4); color:white; padding:12px; border-radius:30px; text-decoration:none; font-weight:800; font-size:15px; }
+  .btn.free { background:#120826; border:1.5px solid #06b6d4; color:#06b6d4; }
+  .info { margin-top:30px; background:#120826; border:1px solid rgba(6,182,212,0.5); border-radius:16px; padding:20px; text-align:center; color:#c4b5fd; font-size:14px; }
+  footer { text-align:center; margin-top:25px; color:#8b7ab8; font-size:13px; }
+  @media(max-width:900px){ .grid{grid-template-columns:1fr 1fr;} }
+  @media(max-width:550px){ .grid{grid-template-columns:1fr;} .hero h1{font-size:28px;} }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="voltar" href="mundinho.html">← Voltar ao Mundinho</a>
+  
+  <div class="hero">
+    <h1>Pacotes de Posts</h1>
+    <p>Escolha o pacote ideal para sua loja e receba seus posts prontos para postar.</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>FREE</h3>
+      <div class="preco">Grátis</div>
+      <ul>
+        <li>10 posts</li>
+        <li>Para conhecer a qualidade</li>
+      </ul>
+      <a class="btn free" href="https://instagram.com/Sitesmind" target="_blank">Quero Free</a>
+    </div>
+
+    <div class="card">
+      <h3>GOLD</h3>
+      <div class="preco">$50</div>
+      <ul>
+        <li>30 posts</li>
+        <li>Prontos para postar</li>
+      </ul>
+      <a class="btn" href="pagamento.html">Quero Gold</a>
+    </div>
+
+    <div class="card">
+      <h3>SUPREME GOLD</h3>
+      <div class="preco">$150</div>
+      <ul>
+        <li>100 posts</li>
+        <li>Melhor custo por post</li>
+      </ul>
+      <a class="btn" href="pagamento.html">Quero Supreme Gold</a>
+    </div>
+
+    <div class="card destacado">
+      <h3>EMERALD</h3>
+      <div class="preco">$149,99<small>/mês</small></div>
+      <ul>
+        <li>Posts quando quiser</li>
+        <li>Alterações ilimitadas</li>
+        <li>Suporte 24h</li>
+      </ul>
+      <a class="btn" href="pagamento.html">Quero Emerald</a>
+    </div>
+  </div>
+
+  <div class="info">
+    Após o pagamento, você será direcionado ao nosso Direct com a mensagem <strong>"Assinei o [plano]"</strong> e seus posts serão enviados.
+  </div>
+
+  <footer>© 2024 Mind • Pacotes de Posts</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIND NEXUS — Experiências Digitais Interativas</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<style>
+:root{--bg:#070412;--violet:#A855F7;--violet2:#c18aff;--white:#f4f7ff;--muted:#9a8ab8}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:"Space Grotesk",sans-serif;overflow-x:hidden}
+.mono{font-family:"JetBrains Mono",monospace}
+#opening{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 50%, #1a1238 0%, #070412 60%, #02020a 100%);transition:opacity .7s, visibility .7s}
+#opening.hide{opacity:0;visibility:hidden;pointer-events:none}
+#openingCanvas{position:absolute;inset:0;width:100%;height:100%}
+.openContent{position:relative;z-index:2;text-align:center;padding:24px}
+.openPortal{width:90px;height:90px;margin:0 auto 18px;border-radius:50%;background:radial-gradient(circle, #A855F7 0%, #5a2a8a 60%, transparent 75%);box-shadow:0 0 40px #A855F766, inset 0 0 20px #ffffff44;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.openTitle{font-size:clamp(2.6rem,7vw,4.2rem);font-weight:700;line-height:.9;letter-spacing:-.06em}
+.openTitle span{color:var(--violet);text-shadow:0 0 30px #A855F766}
+.openPhrase{font-family:"JetBrains Mono";font-size:.68rem;letter-spacing:1.5px;color:#b89ad6;margin-top:16px;max-width:520px;margin:0 auto;line-height:1.6}
+.btnOpen{margin-top:26px;padding:13px 28px;border:1px solid var(--violet);border-radius:99px;background:rgba(168,85,247,.12);color:#fff;font:700 .68rem "JetBrains Mono";letter-spacing:2px;cursor:pointer}
+.header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:14px clamp(16px,3vw,32px);background:linear-gradient(180deg,rgba(7,4,18,.92),rgba(7,4,18,.4));border-bottom:1px solid #ffffff10;backdrop-filter:blur(14px)}
+.logo{font-weight:700;font-size:1.15rem}.logo span{color:var(--violet)}
+.nav{display:flex;gap:20px;align-items:center}.nav a{font:.58rem "JetBrains Mono";color:#9a8ab8;text-decoration:none}
+.btnHeader{padding:8px 16px;border:1px solid var(--violet);border-radius:99px;background:transparent;color:var(--violet2);font:700 .58rem "JetBrains Mono";cursor:pointer}
+
+#hero{position:relative;min-height:100svh;padding:120px clamp(18px,4vw,48px) 80px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;overflow:hidden;background:radial-gradient(ellipse at 75% 20%, #1f1442 0%, transparent 45%), var(--bg)}
+#heroCanvas{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block}
+.heroLeft{position:relative;z-index:2}
+.heroLabel{font:.6rem "JetBrains Mono";letter-spacing:3px;color:var(--violet2);margin-bottom:14px}
+.heroLeft h1{font-size:clamp(2rem,4.5vw,3.6rem);line-height:.95;letter-spacing:-.05em;font-weight:700}
+.heroLeft h1 span{color:var(--violet);text-shadow:0 0 28px #A855F755}
+.heroLeft p{font:.9rem/1.7 "Space Grotesk";color:var(--muted);margin-top:16px;max-width:520px}
+.heroBtns{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap}
+.btnPrimary{padding:14px 24px;border-radius:99px;background:var(--violet);border:1px solid var(--violet);color:#000;font:700 .68rem "JetBrains Mono";cursor:pointer}
+.btnSecondary{padding:14px 24px;border-radius:99px;background:transparent;border:1px solid #ffffff22;color:#fff;font:700 .68rem "JetBrains Mono";cursor:pointer}
+.heroRight{position:relative;z-index:2;display:grid;place-items:center}
+.labStage{position:relative;width:min(100%,520px);aspect-ratio:1/1;perspective:1200px;touch-action:none}
+.floatingCard{position:absolute;width:62%;aspect-ratio:4/3;background:linear-gradient(145deg,rgba(28,18,56,.9),rgba(12,8,32,.9));border:1px solid #A855F733;border-radius:16px;box-shadow:0 20px 60px #0008, 0 0 30px #A855F722;backdrop-filter:blur(12px);padding:14px;display:grid;gap:8px;transform-style:preserve-3d;will-change:transform}
+.floatingCard:nth-child(1){left:0;top:8%}
+.floatingCard:nth-child(2){right:0;bottom:12%}
+.floatingCard::after{content:'';position:absolute;inset:0;border-radius:16px;background:radial-gradient(400px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.15), transparent 40%);opacity:0;transition:opacity .2s;pointer-events:none}
+.floatingCard:hover::after{opacity:1}
+.bar{height:8px;width:40%;background:#A855F744;border-radius:4px}.line{height:6px;background:#ffffff14;border-radius:4px}
+.orb{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--violet);box-shadow:0 0 12px var(--violet);top:-6px;right:-6px;animation:orbPulse 2s infinite}
+@keyframes orbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+
+.section{padding:80px clamp(18px,4vw,48px);position:relative;max-width:1280px;margin:0 auto}
+.sectionHeader{text-align:center;max-width:720px;margin:0 auto 44px}
+.sectionHeader .label{font:.6rem "JetBrains Mono";letter-spacing:3px;color:var(--violet2);margin-bottom:10px}
+.sectionHeader h2{font-size:clamp(1.6rem,3.5vw,2.6rem);line-height:1.05;letter-spacing:-.04em}
+.sectionHeader p{font:.85rem/1.7 "Space Grotesk";color:var(--muted);margin-top:12px}
+
+.labGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.labCard{position:relative;border-radius:18px;background:linear-gradient(145deg,rgba(20,14,42,.9),rgba(10,8,24,.9));border:1px solid #ffffff12;padding:22px;overflow:hidden;min-height:360px;display:flex;flex-direction:column}
+.labCard h3{font-size:1.05rem;margin-bottom:4px;position:relative;z-index:1}
+.labCard .labDesc{font:.68rem/1.5 "JetBrains Mono";color:#9a8ab8;margin-bottom:14px;position:relative;z-index:1}
+.labArea{flex:1;position:relative;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid #ffffff0a;overflow:hidden;display:grid;place-items:center;min-height:220px;touch-action:none}
+
+.holoWrap{perspective:800px;touch-action:none}
+.holoTarget{width:150px;height:190px;background:linear-gradient(145deg,#1e1440,#0e0a24);border:1px solid #A855F744;border-radius:12px;box-shadow:0 10px 30px #0006, 0 0 20px #A855F722;display:grid;place-items:center;transform-style:preserve-3d;will-change:transform;position:relative;overflow:hidden}
+.holoTarget::before{content:'';position:absolute;inset:0;background:radial-gradient(300px circle at var(--hx,50%) var(--hy,50%), rgba(168,85,247,.35), transparent 60%);opacity:0;transition:opacity .2s}
+.holoTarget:hover::before{opacity:1}
+.holoTarget span{font:.6rem "JetBrains Mono";color:#c9a0ff;transform:translateZ(30px)}
+
+.revealBtn{padding:12px 20px;border-radius:99px;background:var(--violet);color:#000;border:none;font:700 .65rem "JetBrains Mono";cursor:pointer;transition:.2s}
+.revealBtn:active{transform:scale(.96)}
+.revealBox{margin-top:14px;padding:12px;border-radius:10px;background:#A855F722;border:1px solid #A855F744;font:.7rem/1.5 "JetBrains Mono";color:#d6c0f0;opacity:0;transform:translateY(8px) scale(.98);transition:.4s cubic-bezier(.16,1,.3,1);pointer-events:none;max-height:0;overflow:hidden}
+.revealBox.show{opacity:1;transform:translateY(0) scale(1);max-height:200px;pointer-events:auto}
+
+.galleryRow{display:flex;gap:10px;overflow-x:auto;padding:10px;scroll-behavior:smooth;width:100%;touch-action:pan-x}
+.galItem{min-width:120px;height:80px;border-radius:10px;background:linear-gradient(120deg,#2a1a4a,#1a1030);border:1px solid #ffffff12;flex-shrink:0;transition:.3s;cursor:pointer;display:grid;place-items:center;font:.6rem "JetBrains Mono";color:#9a8ab8;position:relative;overflow:hidden}
+.galItem::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg, transparent, rgba(255,255,255,.15), transparent);transform:translateX(-100%);transition:transform .6s}
+.galItem:hover::after{transform:translateX(100%)}
+.galItem.active{transform:scale(1.08);border-color:var(--violet);box-shadow:0 0 20px #A855F744;background:linear-gradient(120deg,#3a2460,#2a1840);color:#fff}
+.galPreview{width:100%;margin-top:10px;height:120px;border-radius:10px;background:#0005;border:1px solid #ffffff0a;display:grid;place-items:center;font:.6rem "JetBrains Mono";color:#c9a0ff;transition:.4s;overflow:hidden}
+
+.envScene{position:relative;width:100%;height:100%;min-height:220px}
+#envCanvas{position:absolute;inset:0;width:100%;height:100%}
+.envDot{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--violet);box-shadow:0 0 14px var(--violet);cursor:pointer;transition:.25s;z-index:2;transform:translate(-50%,-50%)}
+.envDot:hover{transform:translate(-50%,-50%) scale(1.8);box-shadow:0 0 22px var(--violet)}
+.envDot.active{transform:translate(-50%,-50%) scale(2.2);background:#fff;box-shadow:0 0 28px var(--violet)}
+.envTooltip{position:absolute;left:24px;top:-8px;font:.55rem "JetBrains Mono";background:#0e0a24;padding:6px 10px;border-radius:8px;border:1px solid #A855F744;white-space:nowrap;opacity:0;pointer-events:none;transition:.25s;transform:translateX(-6px);color:#d6c0f0}
+.envDot:hover .envTooltip, .envDot.active .envTooltip{opacity:1;transform:translateX(0)}
+
+.transDemo{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.transBtn{padding:8px 14px;border-radius:99px;background:transparent;border:1px solid #ffffff18;color:#c9a0ff;font:.58rem "JetBrains Mono";cursor:pointer;transition:.2s}
+.transBtn.active{background:var(--violet);color:#000;border-color:var(--violet)}
+.transBox{width:100%;margin-top:14px;height:90px;border-radius:12px;background:linear-gradient(90deg,#1a1440,#2a1840);display:grid;place-items:center;font:.7rem "JetBrains Mono";color:#d6c0f0;transition:.5s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+
+.gridCards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{padding:22px;border-radius:16px;background:linear-gradient(145deg,rgba(24,16,48,.9),rgba(10,8,24,.9));border:1px solid #ffffff12;transition:.3s}
+.card:hover{transform:translateY(-4px);border-color:#A855F744}
+.comparator{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
+.compBox{border-radius:16px;padding:20px;background:rgba(255,255,255,.02);border:1px solid #ffffff0a;text-align:center;transition:.3s;cursor:pointer}
+.compBox.active{border-color:var(--violet);background:rgba(168,85,247,.08);transform:translateY(-3px)}
+.compDemo{margin-top:12px;height:70px;border-radius:10px;background:#0004;display:grid;place-items:center;font:.65rem "JetBrains Mono";color:#c9a0ff;border:1px solid #ffffff08;transition:.3s;touch-action:none}
+.timeline{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:20px}
+.step{text-align:center;padding:18px;border-radius:14px;background:rgba(255,255,255,.02);border:1px solid #ffffff08}
+.stepNum{width:56px;height:56px;margin:0 auto 12px;border-radius:50%;background:radial-gradient(circle, #A855F7 0%, #2a144a 100%);display:grid;place-items:center;font:700 .9rem "JetBrains Mono";box-shadow:0 0 20px #A855F744}
+#cta{position:relative;padding:100px clamp(18px,4vw,48px);background:radial-gradient(ellipse at 50% 0%, #1f1442 0%, #0e0828 45%, #070412 100%);overflow:hidden;text-align:center}
+#ctaCanvas{position:absolute;inset:0;opacity:.5;width:100%;height:100%}
+.ctaContent{position:relative;z-index:2;max-width:720px;margin:0 auto}
+.ctaContent h2{font-size:clamp(1.8rem,4vw,3rem);line-height:.95}
+.ctaContent h2 span{color:var(--violet)}
+.footer{padding:28px clamp(18px,4vw,48px);background:#070412;border-top:1px solid #ffffff10;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+.reveal{opacity:0;transform:translateY(18px);transition:.7s cubic-bezier(.16,1,.3,1)}
+.reveal.on{opacity:1;transform:translateY(0)}
+@media(max-width:900px){
+ #hero{grid-template-columns:1fr;padding-top:96px}
+ .labGrid,.gridCards,.comparator,.timeline{grid-template-columns:1fr}
+ .nav{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="opening">
+<canvas id="openingCanvas"></canvas>
+<div class="openContent">
+<div class="openPortal"></div>
+<div class="openTitle">MIND<br><span>NEXUS</span></div>
+<div class="openPhrase mono">Você não precisa apenas de um site.<br>Precisa de uma experiência.</div>
+<button class="btnOpen mono" id="btnOpen">[ ENTRAR NO NEXUS ]</button>
+</div>
+</div>
+
+<header class="header">
+<div class="logo">MIND <span>NEXUS</span></div>
+<div class="nav">
+<a href="mind-dimensions.html">DIMENSIONS</a>
+<a href="genesis.html">GENESIS</a>
+<a href="#lab">LAB</a>
+<button class="btnHeader mono" onclick="window.open('https://wa.me/5551999999999','_blank')">CRIAR EXPERIÊNCIA</button>
+</div>
+</header>
+
+<section id="hero">
+<canvas id="heroCanvas"></canvas>
+<div class="heroLeft reveal">
+<div class="heroLabel mono">● PORTAL 02 • LABORATÓRIO REAL</div>
+<h1>TRANSFORME A NAVEGAÇÃO EM UMA <span>EXPERIÊNCIA.</span></h1>
+<p>Este hero tem um portal 3D violeta real atrás, com shader e partículas que seguem seu mouse. Mova o cursor e veja.</p>
+<div class="heroBtns">
+<button class="btnPrimary mono" onclick="document.getElementById('lab').scrollIntoView()">EXPERIMENTAR AGORA →</button>
+<button class="btnSecondary mono" onclick="window.open('https://wa.me/5551999999999','_blank')">QUERO UM SITE ASSIM</button>
+</div>
+</div>
+<div class="heroRight reveal">
+<div class="labStage" id="labStage">
+<div class="floatingCard" id="cardA"><div class="bar"></div><div class="line" style="width:80%"></div><div class="line" style="width:60%"></div><div style="display:flex;gap:8px;margin-top:8px"><div class="line" style="flex:1;height:32px"></div><div class="line" style="flex:1;height:32px"></div></div><div class="orb"></div></div>
+<div class="floatingCard" id="cardB"><div class="bar" style="width:30%"></div><div class="line" style="width:90%"></div><div class="line" style="height:48px;margin-top:6px"></div><div class="line" style="width:50%;height:12px;background:#A855F7"></div></div>
+</div>
+</div>
+</section>
+
+<section class="section" id="lab">
+<div class="sectionHeader reveal">
+<div class="label mono">LABORATÓRIO FUNCIONAL • TUDO COM FÍSICA REAL</div>
+<h2>Agora tudo se mexe de verdade.</h2>
+<p>Passe o mouse, toque, arraste. Cada área tem shader, luz e reação física.</p>
+</div>
+<div class="labGrid">
+<div class="labCard reveal"><h3>EXPERIMENTO A — Holograma 3D com luz</h3><p class="labDesc">Mova o mouse. O cartão inclina em 3D, a luz segue seu cursor e o brilho aumenta nas bordas.</p><div class="labArea holoWrap" id="areaA"><div class="holoTarget" id="holoTarget"><span class="mono">HOLOGRAMA<br>● AO VIVO<br><br>◐ 98%<br>◑ TRACKING</span></div></div></div>
+<div class="labCard reveal"><h3>EXPERIMENTO B — Reveal com física</h3><p class="labDesc">Clique. A caixa revela com spring animation real, não só fade.</p><div class="labArea" style="flex-direction:column"><button class="revealBtn" id="btnReveal">REVELAR INFORMAÇÃO →</button><div class="revealBox" id="revealBox">✦ Experiência desbloqueada: micro-interações aumentam tempo de permanência em 40%. Este box usa transform com escala e mola cúbica, não é só opacity.</div></div></div>
+<div class="labCard reveal"><h3>EXPERIMENTO C — Galeria com preview vivo</h3><p class="labDesc">Clique. A galeria expande e mostra preview com brilho correndo.</p><div class="labArea" style="flex-direction:column"><div class="galleryRow" id="galleryRow"><div class="galItem active">IMG 01</div><div class="galItem">IMG 02</div><div class="galItem">IMG 03</div><div class="galItem">IMG 04</div><div class="galItem">IMG 05</div></div><div class="galPreview" id="galPreview">PREVIEW • IMG 01 • CLIQUE PARA EXPLORAR</div></div></div>
+<div class="labCard reveal"><h3>EXPERIMENTO D — Ambiente com canvas</h3><p class="labDesc">Passe nos pontos. Eles conectam com linhas desenhadas em canvas real + tooltip.</p><div class="labArea"><div class="envScene" id="envScene"><canvas id="envCanvas"></canvas><div class="envDot" style="left:20%;top:30%" data-label="✦ Animações ao rolar"><div class="envTooltip">Animações ao rolar</div></div><div class="envDot" style="left:55%;top:18%" data-label="✦ Elementos 3D reais"><div class="envTooltip">Elementos 3D reais</div></div><div class="envDot" style="left:70%;top:60%" data-label="✦ Transições fluidas"><div class="envTooltip">Transições fluidas</div></div><div class="envDot" style="left:30%;top:70%" data-label="✦ Sombras dinâmicas"><div class="envTooltip">Sombras dinâmicas</div></div></div></div></div>
+<div class="labCard reveal" style="grid-column:span 2"><h3>EXPERIMENTO E — Transições cinematográficas reais</h3><p class="labDesc">Cada botão executa uma transição diferente com transform 3D real.</p><div class="labArea" style="flex-direction:column;gap:12px"><div class="transDemo"><button class="transBtn active" data-trans="slide">SLIDE</button><button class="transBtn" data-trans="zoom">ZOOM</button><button class="transBtn" data-trans="flip">FLIP 3D</button><button class="transBtn" data-trans="morph">MORPH</button></div><div class="transBox" id="transBox">CONTEÚDO EM TRANSIÇÃO • MIND NEXUS</div></div></div>
+</div>
+</section>
+
+<section id="cta">
+<canvas id="ctaCanvas"></canvas>
+<div class="ctaContent reveal">
+<h2>FEITO PARA <span>SER SENTIDO, NÃO SÓ VISTO.</span></h2>
+<p>Agora cada interação tem luz, sombra e física. É assim que seu cliente vai se sentir.</p>
+<div style="margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+<button class="btnPrimary mono" onclick="window.open('https://wa.me/5551999999999','_blank')">CRIAR MINHA EXPERIÊNCIA →</button>
+<button class="btnSecondary mono" onclick="location.href='mind-dimensions.html'">VOLTAR AO UNIVERSO</button>
+</div>
+</div>
+</section>
+
+<footer class="footer">
+<div><div class="logo">MIND <span>NEXUS</span></div><p style="margin-top:6px" class="mono">LABORATÓRIO REAL • 60FPS • MOBILE OTIMIZADO</p></div>
+<div style="display:flex;gap:16px"><a href="mind-dimensions.html" class="mono">◉ DIMENSIONS</a><a href="#" onclick="window.open('https://ig.me/m/sitesmind','_blank')" class="mono">INSTAGRAM</a></div>
+</footer>
+
+<script>
+document.getElementById('btnOpen').addEventListener('click',()=>document.getElementById('opening').classList.add('hide'));
+setTimeout(()=>{ const o=document.getElementById('opening'); if(o) o.classList.add('hide'); }, 4000);
+const reveals=document.querySelectorAll('.reveal');
+const io=new IntersectionObserver((entries)=>{ entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on'); }); },{threshold:0.15});
+reveals.forEach(r=>io.observe(r));
+
+// LAB STAGE - CARTÕES COM LUZ QUE SEGUE MOUSE
+const labStage=document.getElementById('labStage');
+const cardA=document.getElementById('cardA');
+const cardB=document.getElementById('cardB');
+function handleLabStageMove(clientX, clientY){
+  const r=labStage.getBoundingClientRect();
+  const px=(clientX-r.left)/r.width;
+  const py=(clientY-r.top)/r.height;
+  const x=(px-0.5)*24;
+  const y=(py-0.5)*-16;
+  const mx=px*100+'%';
+  const my=py*100+'%';
+  [cardA, cardB].forEach(c=>{
+    c.style.setProperty('--mx', mx);
+    c.style.setProperty('--my', my);
+  });
+  cardA.style.transform=`rotateY(${-14+x}deg) rotateX(${8+y}deg) translateZ(20px)`;
+  cardB.style.transform=`rotateY(${12+x}deg) rotateX(${6+y}deg) translateZ(16px)`;
+}
+labStage.addEventListener('mousemove', e=>handleLabStageMove(e.clientX, e.clientY));
+labStage.addEventListener('touchmove', e=>{ handleLabStageMove(e.touches[0].clientX, e.touches[0].clientY); }, {passive:true});
+labStage.addEventListener('mouseleave', ()=>{
+  cardA.style.transform='rotateY(-14deg) rotateX(8deg) translateZ(0)';
+  cardB.style.transform='rotateY(12deg) rotateX(6deg) translateZ(0)';
+});
+
+// EXPERIMENTO A - HOLOGRAMA COM LUZ REAL
+const areaA=document.getElementById('areaA');
+const holoTarget=document.getElementById('holoTarget');
+function handleHoloMove(clientX, clientY){
+  const r=areaA.getBoundingClientRect();
+  const px=(clientX-r.left)/r.width;
+  const py=(clientY-r.top)/r.height;
+  const x=(px-0.5)*34;
+  const y=(py-0.5)*-26;
+  holoTarget.style.setProperty('--hx', (px*100)+'%');
+  holoTarget.style.setProperty('--hy', (py*100)+'%');
+  holoTarget.style.transform=`rotateY(${x}deg) rotateX(${y}deg) translateZ(28px)`;
+  holoTarget.style.boxShadow=`${-x*0.6}px ${-y*0.6}px 30px rgba(168,85,247,.35), 0 12px 30px #0008`;
+}
+areaA.addEventListener('mousemove', e=>handleHoloMove(e.clientX, e.clientY));
+areaA.addEventListener('touchmove', e=>handleHoloMove(e.touches[0].clientX, e.touches[0].clientY), {passive:true});
+areaA.addEventListener('mouseleave', ()=>{ holoTarget.style.transform='rotateY(0) rotateX(0) translateZ(0)'; holoTarget.style.boxShadow='0 10px 30px #0006, 0 0 20px #A855F722'; });
+
+// EXPERIMENTO B
+document.getElementById('btnReveal')?.addEventListener('click', function(){
+  const box=document.getElementById('revealBox');
+  const isShow=box.classList.toggle('show');
+  this.textContent=isShow?'OCULTAR →':'REVELAR INFORMAÇÃO →';
+  if(isShow){ box.style.transform='translateY(8px) scale(.96)'; requestAnimationFrame(()=>{ box.style.transform='translateY(0) scale(1)'; }); }
+});
+
+// EXPERIMENTO C - GALERIA COM PREVIEW REAL
+const galPreview=document.getElementById('galPreview');
+document.querySelectorAll('.galItem').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    document.querySelectorAll('.galItem').forEach(i=>i.classList.remove('active'));
+    el.classList.add('active');
+    const txt=el.textContent;
+    galPreview.textContent=`PREVIEW • ${txt} • EFEITO DE BRILHO ATIVO`;
+    galPreview.style.background=`linear-gradient(120deg,#${Math.floor(Math.random()*16777215).toString(16).padStart(6,'0')},#1a1030)`;
+    galPreview.animate([{transform:'scale(.96)', opacity:.6},{transform:'scale(1)', opacity:1}], {duration:400, easing:'cubic-bezier(.16,1,.3,1)'});
+  });
+});
+
+// EXPERIMENTO D - CANVAS COM LINHAS CONECTANDO PONTOS
+const envScene=document.getElementById('envScene');
+const envCanvas=document.getElementById('envCanvas');
+const envCtx=envCanvas.getContext('2d');
+function resizeEnvCanvas(){
+  const r=envScene.getBoundingClientRect();
+  envCanvas.width=r.width*window.devicePixelRatio;
+  envCanvas.height=r.height*window.devicePixelRatio;
+  envCanvas.style.width=r.width+'px';
+  envCanvas.style.height=r.height+'px';
+  envCtx.setTransform(window.devicePixelRatio,0,0,window.devicePixelRatio,0,0);
+}
+resizeEnvCanvas();
+window.addEventListener('resize', resizeEnvCanvas);
+const dots=document.querySelectorAll('.envDot');
+let activeDot=null;
+function drawLines(){
+  envCtx.clearRect(0,0,envCanvas.width,envCanvas.height);
+  const pts=[...dots].map(d=>{ const r=envScene.getBoundingClientRect(); const dr=d.getBoundingClientRect(); return {x:dr.left - r.left + dr.width/2, y:dr.top - r.top + dr.height/2, active:d.classList.contains('active')}; });
+  envCtx.strokeStyle='rgba(168,85,247,0.18)';
+  envCtx.lineWidth=1;
+  for(let i=0;i<pts.length;i++){ for(let j=i+1;j<pts.length;j++){ envCtx.beginPath(); envCtx.moveTo(pts[i].x, pts[i].y); envCtx.lineTo(pts[j].x, pts[j].y); envCtx.stroke(); } }
+  // linha para mouse
+  if(activeDot){
+    envCtx.strokeStyle='rgba(168,85,247,0.45)';
+    envCtx.setLineDash([4,6]);
+    pts.forEach(p=>{ if(p.active){ envCtx.beginPath(); envCtx.moveTo(p.x, p.y); envCtx.lineTo(activeDot.x, activeDot.y); envCtx.stroke(); } });
+    envCtx.setLineDash([]);
+  }
+}
+dots.forEach(d=>{
+  d.addEventListener('mouseenter', ()=>{ d.classList.add('active'); drawLines(); });
+  d.addEventListener('mouseleave', ()=>{ d.classList.remove('active'); activeDot=null; drawLines(); });
+  d.addEventListener('click', ()=>{ dots.forEach(o=>o.classList.remove('active')); d.classList.add('active'); setTimeout(()=>d.classList.remove('active'), 1200); drawLines(); });
+});
+envScene.addEventListener('mousemove', e=>{
+  const r=envScene.getBoundingClientRect();
+  activeDot={x:e.clientX - r.left, y:e.clientY - r.top};
+  drawLines();
+});
+envScene.addEventListener('mouseleave', ()=>{ activeDot=null; drawLines(); });
+drawLines();
+
+// EXPERIMENTO E
+const transBox=document.getElementById('transBox');
+document.querySelectorAll('.transBtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.transBtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const type=btn.dataset.trans;
+    transBox.style.transition='none';
+    if(type==='slide'){ transBox.style.transform='translateX(100%)'; transBox.style.opacity='0'; setTimeout(()=>{ transBox.style.transition='.55s cubic-bezier(.16,1,.3,1)'; transBox.style.transform='translateX(0)'; transBox.style.opacity='1'; },30); }
+    else if(type==='zoom'){ transBox.style.transform='scale(0.5)'; transBox.style.opacity='0'; setTimeout(()=>{ transBox.style.transition='.5s cubic-bezier(.16,1,.3,1)'; transBox.style.transform='scale(1)'; transBox.style.opacity='1'; },30); }
+    else if(type==='flip'){ transBox.style.transform='perspective(600px) rotateY(90deg)'; setTimeout(()=>{ transBox.style.transition='.6s'; transBox.style.transform='perspective(600px) rotateY(0)'; },30); }
+    else if(type==='morph'){ transBox.style.borderRadius='50%'; transBox.style.transform='scale(0.7)'; setTimeout(()=>{ transBox.style.transition='.6s cubic-bezier(.16,1,.3,1)'; transBox.style.borderRadius='12px'; transBox.style.transform='scale(1)'; },30); }
+  });
+});
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+
+const isMobile=window.innerWidth<700;
+
+// HERO PORTAL 3D VIOLETA REAL COM SHADER
+function initHeroPortal(){
+  const canvas=document.getElementById('heroCanvas');
+  if(!canvas) return;
+  const scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x070412, 0.035);
+  const camera=new THREE.PerspectiveCamera(45, canvas.clientWidth/canvas.clientHeight, 0.1, 100);
+  camera.position.set(0,1.2,6);
+  const renderer=new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile?1.2:1.6));
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.1;
+
+  const composer=new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene,camera));
+  const bloom=new UnrealBloomPass(new THREE.Vector2(canvas.clientWidth, canvas.clientHeight), 0.65, 0.5, 0.85);
+  composer.addPass(bloom);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const dir=new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(3,5,4); scene.add(dir);
+
+  // portal violeta com shader vortex
+  const vortexMat=new THREE.ShaderMaterial({
+    uniforms:{time:{value:0}, color:{value:new THREE.Color(0xA855F7)}},
+    vertexShader:`varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader:`uniform float time; uniform vec3 color; varying vec2 vUv;
+    void main(){
+      vec2 uv=vUv*2.0-1.0;
+      float r=length(uv);
+      float a=atan(uv.y, uv.x);
+      float swirl=sin(a*4.0 - r*12.0 - time*1.2)*0.5+0.5;
+      float center=pow(1.0-r, 2.2);
+      vec3 col=color*0.18 + color*swirl*0.8 + vec3(1.0)*center*0.8;
+      float alpha=smoothstep(0.0,1.0,1.0-r);
+      gl_FragColor=vec4(col, alpha*0.9);
+    }`,
+    transparent:true, side:THREE.DoubleSide
+  });
+  const vortex=new THREE.Mesh(new THREE.CircleGeometry(1.4, 64), vortexMat);
+  vortex.position.set(1.2,0.2,-1);
+  scene.add(vortex);
+
+  const ring1=new THREE.Mesh(new THREE.TorusGeometry(1.5,0.06,16,64), new THREE.MeshStandardMaterial({color:0xA855F7, emissive:0xA855F7, emissiveIntensity:1.2}));
+  ring1.position.copy(vortex.position); ring1.position.z+=0.05; scene.add(ring1);
+  const ring2=new THREE.Mesh(new THREE.TorusGeometry(1.7,0.02,12,48), new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.4}));
+  ring2.position.copy(vortex.position); ring2.position.z+=0.06; scene.add(ring2);
+
+  // partículas que seguem mouse
+  const pCount=isMobile?80:150;
+  const pGeo=new THREE.BufferGeometry();
+  const pPos=new Float32Array(pCount*3);
+  const pVel=new Float32Array(pCount*3);
+  for(let i=0;i<pCount;i++){ pPos[i*3]=(Math.random()-0.5)*8; pPos[i*3+1]=(Math.random()-0.5)*6; pPos[i*3+2]=(Math.random()-0.5)*4-1; pVel[i*3]=(Math.random()-0.5)*0.01; pVel[i*3+1]=(Math.random()-0.5)*0.01; }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
+  const pMat=new THREE.PointsMaterial({color:0xA855F7, size:0.06, transparent:true, opacity:0.7, sizeAttenuation:true});
+  const points=new THREE.Points(pGeo, pMat);
+  scene.add(points);
+
+  let mouseX=0, mouseY=0;
+  window.addEventListener('mousemove', e=>{
+    mouseX=(e.clientX/window.innerWidth-0.5)*0.8;
+    mouseY=(e.clientY/window.innerHeight-0.5)*0.4;
+  });
+  window.addEventListener('touchmove', e=>{
+    mouseX=(e.touches[0].clientX/window.innerWidth-0.5)*0.8;
+    mouseY=(e.touches[0].clientY/window.innerHeight-0.5)*0.4;
+  }, {passive:true});
+
+  const clock=new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const t=clock.getElapsedTime();
+    vortexMat.uniforms.time.value=t;
+    vortex.rotation.z=t*0.15;
+    ring1.rotation.z=t*0.25;
+    ring2.rotation.z=-t*0.18;
+    camera.position.x+=(mouseX - camera.position.x)*0.04;
+    camera.position.y+=(1.2+mouseY - camera.position.y)*0.04;
+    camera.lookAt(0,0.2,0);
+
+    const pos=pGeo.attributes.position.array;
+    for(let i=0;i<pCount;i++){
+      pos[i*3]+=pVel[i*3] + mouseX*0.002;
+      pos[i*3+1]+=pVel[i*3+1];
+      if(pos[i*3+1]>4) pos[i*3+1]=-4;
+      if(pos[i*3]<-4) pos[i*3]=4;
+      if(pos[i*3]>4) pos[i*3]=-4;
+    }
+    pGeo.attributes.position.needsUpdate=true;
+    points.rotation.y=t*0.05;
+
+    composer.render();
+  }
+  animate();
+
+  window.addEventListener('resize', ()=>{
+    const w=canvas.clientWidth, h=canvas.clientHeight;
+    camera.aspect=w/h; camera.updateProjectionMatrix();
+    renderer.setSize(w,h); composer.setSize(w,h);
+  });
+}
+initHeroPortal();
+
+// particulas simples para opening e cta
+function simpleParticles(canvas, count, color){
+  const c=document.getElementById(canvas);
+  if(!c) return;
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(60, c.clientWidth/c.clientHeight, 0.1, 100);
+  camera.position.z=6;
+  const renderer=new THREE.WebGLRenderer({canvas:c, alpha:true, antialias:true});
+  renderer.setSize(c.clientWidth, c.clientHeight);
+  renderer.setPixelRatio(1.2);
+  const geo=new THREE.BufferGeometry();
+  const pos=new Float32Array(count*3);
+  for(let i=0;i<count*3;i++) pos[i]=(Math.random()-0.5)*10;
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const mat=new THREE.PointsMaterial({color, size:0.08, transparent:true, opacity:0.7});
+  const points=new THREE.Points(geo, mat);
+  scene.add(points);
+  function anim(){ requestAnimationFrame(anim); points.rotation.y+=0.001; renderer.render(scene,camera); }
+  anim();
+}
+simpleParticles('openingCanvas', isMobile?60:120, 0xA855F7);
+simpleParticles('ctaCanvas', isMobile?40:80, 0xc18aff);
+</script>
+</body>
+</html>
